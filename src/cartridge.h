@@ -9,35 +9,35 @@
 // generates Cartrigde object. MMC1...5
 
 enum cart_type_e {
-  ROM_ONLY,
-  MBC1,
-  MBC1_RAM,
-  MBC1_RAM_BATTERY,
-  MBC2,
-  MBC2_BATTERY,
-  ROM_RAM,
-  ROM_RAM_BATTERY,
-  MMM01,
-  MMM01_RAM,
-  MMM01_RAM_BATTERY,
-  MBC3_TIMER_BATTERY,
-  MBC3_TIMER_RAM_BATTERY,
-  MBC3,
-  MBC3_RAM,
-  MBC3_RAM_BATTERY,
-  MBC4,
-  MBC4_RAM,
-  MBC4_RAM_BATTERY,
-  MBC5,
-  MBC5_RAM,
-  MBC5_RAM_BATTERY,
-  MBC5_RUMBLE,
-  MBC5_RUMBLE_RAM,
-  MBC5_RUMBLE_RAM_BATTERY,
-  CAMERA,
-  BANDAI,
-  HUC3,
-  HUC1_MBC_RAM_BATTERY
+  ROM_ONLY = 0,
+  MBC1 = 0x01,
+  MBC1_RAM = 0x02,
+  MBC1_RAM_BATTERY = 0x03,
+  MBC2 = 0x05,
+  MBC2_BATTERY = 0x06,
+  ROM_RAM = 0x08,
+  ROM_RAM_BATTERY = 0x09,
+  MMM01 = 0x0B,
+  MMM01_RAM = 0x0C,
+  MMM01_RAM_BATTERY = 0x0D,
+  MBC3_TIMER_BATTERY = 0x0F,
+  MBC3_TIMER_RAM_BATTERY = 0x10,
+  MBC3 = 0x11,
+  MBC3_RAM = 0x12,
+  MBC3_RAM_BATTERY = 0x13,
+  MBC4 = 0x15,
+  MBC4_RAM = 0x16,
+  MBC4_RAM_BATTERY = 0x17,
+  MBC5 = 0x19,
+  MBC5_RAM = 0x1A,
+  MBC5_RAM_BATTERY = 0x1B,
+  MBC5_RUMBLE = 0x1C,
+  MBC5_RUMBLE_RAM = 0x1D,
+  MBC5_RUMBLE_RAM_BATTERY = 0x1E,
+  CAMERA = 0xFC,
+  BANDAI = 0xFD,
+  HUC3 = 0xFE,
+  HUC1_MBC_RAM_BATTERY = 0xFF
 };
 
 enum rom_size_e {
@@ -77,6 +77,7 @@ private:
   std::string getRomSizeStr() const;
   std::string getRamSizeStr() const;
   std::string getDestStr() const;
+
   uint8_t entry[0x04];  // 0x100-103
   uint8_t logo[0x30];   // 0x104 - 0x133
   char title[0x0F];     // 0x134 - 0x143
@@ -95,13 +96,15 @@ private:
 
 class CartridgeMemory {
 public:
-  CartridgeMemory(const char *filename){};
+  CartridgeMemory(const char *filename){
+
+  };
   ~CartridgeMemory(){};
   uint8_t read(const uint16_t addr) { return rom.at(addr); };
   virtual void write(const uint16_t addr, const uint8_t data) { rom.at(addr) = data; };
 
 protected:
-  std::vector<uint8_t> rom = {0, 0, 0};
+  std::vector<uint8_t> rom;
   std::vector<uint8_t> ram;
 };
 
