@@ -162,7 +162,7 @@ std::istream &operator>>(std::istream &in, CartridgeHeader &c) {
 Cartridge::Cartridge(const char *filename) {
   std::ifstream f(filename, std::ifstream::binary);
   std::cout << filename << std::endl;
-  f.seekg(0x100);
+  f.seekg(0x100); //Cartridge Header starts at 0x100
   f >> cart_header;
   f.close();
 }
