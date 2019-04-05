@@ -8,13 +8,13 @@ class SerialPort {
 public:
   SerialPort(){};
   ~SerialPort(){};
-  uint8_t read(){};
-  void write(const uint8_t data) { std::cout << data << std : endl; }
-}
+  uint8_t read() { return 0; };
+  void write(const uint8_t data) { std::cout << data; }
+};
 
 class MMU {
 public:
-  MMU(CartridgeMemory &cart_memory) : m_cart(cart_memory), m_serialPort(){};
+  MMU(CartridgeMemory &cart_memory) : m_cartridge(cart_memory), m_serialPort(){};
   ~MMU(){};
   uint8_t read8bit(const uint16_t address);
   uint16_t read16bit(const uint16_t address);
@@ -23,6 +23,6 @@ public:
   void write(const uint16_t address, const uint16_t data);
 
 private:
-  Cartridge &m_cartridge;
+  CartridgeMemory &m_cartridge;
   SerialPort m_serialPort;
-}
+};
