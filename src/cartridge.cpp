@@ -1,6 +1,5 @@
 #include "Cartridge.h"
 #include "Cartridge_Header.h"
-#include <fstream>
 #include <assert.h>
 
 CartridgeMemory *Create(cart_type_e type, const char *filename) {
