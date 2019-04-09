@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/cartridge.h"
+#include "../src/Cartridge.h"
 
 
 namespace {

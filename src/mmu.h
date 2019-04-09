@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-#include "cartridge.h"
+#include "Cartridge.h"
 #include "cpu.h"
 
 class SerialPort {
@@ -14,7 +14,7 @@ public:
 
 class MMU {
 public:
-  MMU(CartridgeMemory &cart_memory) : m_cartridge(cart_memory), m_serialPort(){};
+  MMU(CartridgeMemory *cart_memory) : m_cartridge(cart_memory), m_serialPort(){};
   ~MMU(){};
   uint8_t read8bit(const uint16_t address);
   uint16_t read16bit(const uint16_t address);
@@ -23,6 +23,6 @@ public:
   void write(const uint16_t address, const uint16_t data);
 
 private:
-  CartridgeMemory &m_cartridge;
+  CartridgeMemory *m_cartridge;
   SerialPort m_serialPort;
 };

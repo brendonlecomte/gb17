@@ -12,7 +12,8 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g")
 set(sources "src/main.cpp"
             "src/alu.cpp"
             "src/cpu.cpp"
-            "src/cartridge.cpp"
+            "src/Cartridge.cpp"
+            "src/Cartridge_Header.cpp"
             "src/mmu.cpp")
 
 add_executable(gb17 ${sources})
