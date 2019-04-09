@@ -1,0 +1,22 @@
+Basic CPU
+- Instructions impl
+- OP Codes
+- Single Cycle execution
+
+Emulator Top level
+- MMU
+- NoROM MBC
+- Serial debugging
+- Basic Instruction Tests
+* at this point a cart can run
+
+Debugging
+- Single step
+- Print Registers
+
+
+- JOYPAD
+- Interrupts
+- Timers
+- PPU
+- Sound
