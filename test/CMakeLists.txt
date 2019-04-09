@@ -37,7 +37,7 @@ endif()
 
 # Generic Compile flags
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set (core_sources "../src/cpu.cpp" "../src/alu.cpp" "../src/Cartridge.cpp" "../src/Cartridge_Header.cpp" )
+set (core_sources "../src/CPU.cpp" "../src/ALU.cpp" "../src/Cartridge.cpp" "../src/Cartridge_Header.cpp" )
 
 # Compile tests
 add_executable(gb17_test_cpu "test_cpu.cpp" ${core_sources})

@@ -1,100 +1,109 @@
-#include "mmu.h"
+#include "MMU.h"
+#include <assert.h>
 
 uint8_t MMU::read8bit(const uint16_t address) {
   switch (address) {
-    case 0x0000..0x3FFF:
+    case 0x0000 ... 0x3FFF:
       // 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+      m_cartridge->read(address);
       break;
-    case 0x4000..0x7FFF:
-      // 16KB ROM Bank 01..NN (in cartridge, switchable bank number)
+    case 0x4000 ... 0x7FFF:
+      // 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
       break;
-    case 0x8000..0x9FFF:
+    case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
       break;
-    case 0xA000..0xBFFF:
+    case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
       break;
-    case 0xC000..0xCFFF:
+    case 0xC000 ... 0xCFFF:
       // 4KB Work RAM Bank 0 (WRAM)
       break;
-    case 0xD000..0xDFFF:
+    case 0xD000 ... 0xDFFF:
       // 4KB Work RAM Bank 1 (WRAM)  (switchable bank 1-7 in CGB Mode)
       break;
-    case 0xE000..0xFDFF:
+    case 0xE000 ... 0xFDFF:
       // Same as C000-DDFF (ECHO)    (typically not used)
       break;
-    case 0xFE00..0xFE9F:
+    case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
       break;
-    case 0xFEA0..0xFEFF:
+    case 0xFEA0 ... 0xFEFF:
       // Not Usable
       break;
     case 0xFF00:
-      //JOYP
+      // JOYP
       break;
     case 0xFF01:
       // Serial Data
       break;
-    case 0xFF02: // Serial Control...
+    case 0xFF02: // Serial Control ... .
       break;
-    case 0xFF03..0xFF7F:
+    case 0xFF03 ... 0xFF7F:
       // I/O Ports
       break;
-    case 0xFF80..0xFFFE:
+    case 0xFF80 ... 0xFFFE:
       // High RAM (HRAM)
       break;
     case 0xFFFF:
       // Interrupt Enable Register
       break;
     default:
+
       break;
   }
-  return m_cartridge->read(address);
+  assert(address);
+  return 0;
 }
-uint16_t MMU::read16bit(const uint16_t address) {
-  return ((m_cartridge->read(address) << 8) | m_cartridge->read(address + 1));
-}
+uint16_t MMU::read16bit(const uint16_t address) { return ((read8bit(address) << 8) | read8bit(address + 1)); }
 
 void MMU::write(const uint16_t address, const uint8_t data) {
   switch (address) {
-    case 0x0000..0x3FFF:
+    case 0x0000 ... 0x3FFF:
       // 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
       break;
-    case 0x4000..0x7FFF:
-      // 16KB ROM Bank 01..NN (in cartridge, switchable bank number)
+    case 0x4000 ... 0x7FFF:
+      // 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
       break;
-    case 0x8000..0x9FFF:
+    case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
       break;
-    case 0xA000..0xBFFF:
+    case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
       break;
-    case 0xC000..0xCFFF:
+    case 0xC000 ... 0xCFFF:
       // 4KB Work RAM Bank 0 (WRAM)
       break;
-    case 0xD000..0xDFFF:
+    case 0xD000 ... 0xDFFF:
       // 4KB Work RAM Bank 1 (WRAM)  (switchable bank 1-7 in CGB Mode)
       break;
-    case 0xE000..0xFDFF:
+    case 0xE000 ... 0xFDFF:
       // Same as C000-DDFF (ECHO)    (typically not used)
       break;
-    case 0xFE00..0xFE9F:
+    case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
       break;
-    case 0xFEA0..0xFEFF:
+    case 0xFEA0 ... 0xFEFF:
       // Not Usable
       break;
-    case 0xFF00..0xFF7F:
+    case 0xFF00:
+      // JOYP
+      break;
+    case 0xFF01:
+      // Serial Data
+      m_serialPort.write(data);
+      break;
+    case 0xFF02: // Serial Control ...
+      break;
+    case 0xFF03 ... 0xFF7F:
       // I/O Ports
       break;
-    case 0xFF80..0xFFFE:
+    case 0xFF80 ... 0xFFFE:
       // High RAM (HRAM)
       break;
     case 0xFFFF:
       // Interrupt Enable Register
       break;
-    case 0xFF01:
-      m_serialPort.write(data);
     default:
       m_cartridge->write(address, data);
       break;

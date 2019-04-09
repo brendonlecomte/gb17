@@ -1,4 +1,4 @@
-#include "alu.h"
+#include "ALU.h"
 
 uint8_t ALU::add(const uint8_t a, const uint8_t b, const uint8_t carry) {
   uint16_t temp = a + b + carry;

@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #include "Cartridge.h"
-#include "cpu.h"
+#include "CPU.h"
 
 class SerialPort {
 public:

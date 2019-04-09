@@ -1,8 +1,8 @@
 #include <iostream>
-#include "alu.h"
+#include "ALU.h"
 #include "Cartridge.h"
-#include "cpu.h"
-#include "mmu.h"
+#include "CPU.h"
+#include "MMU.h"
 
 int main(int argc, char** argv){
   uint8_t a, b, c;

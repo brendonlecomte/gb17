@@ -1,7 +1,7 @@
 #include <assert.h>
 
-#include "alu.h"
-#include "cpu.h"
+#include "ALU.h"
+#include "CPU.h"
 
 CPU::CPU()
     : A(), F(), B(), C(), D(), E(), H(), L(), AF(A, F), BC(B, C), DE(D, E), HL(H, L), SP(0xFFFE), PC(0x0000), alu(F) {}

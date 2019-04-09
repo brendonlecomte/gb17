@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "alu.h"
+#include "ALU.h"
 #include "register.h"
 
 class CPU {
