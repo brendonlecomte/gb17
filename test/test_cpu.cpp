@@ -533,23 +533,86 @@ TEST_F(CpuTest, res) {
 }
 
 TEST_F(CpuTest, ret) {
-  EXPECT_EQ(0, 1);
+  m_cpu.PC = 0xAAAA;
+  m_cpu.stack_push(0x1234);
+  m_cpu.ret();
+  EXPECT_EQ(0x1234, m_cpu.PC);
 }
 
 TEST_F(CpuTest, rr) {
-  EXPECT_EQ(0, 1);
+  Register x;
+  x = 0xAA;
+  m_cpu.rr(x);
+  EXPECT_EQ(0, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x55, (uint8_t)x);
 }
 
 TEST_F(CpuTest, rl) {
-  EXPECT_EQ(0, 1);
+  Register x;
+  x = 0x55;
+  m_cpu.rl(x);
+  EXPECT_EQ(0, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0xAA, (uint8_t)x);
+
+  x = 0x80;
+  m_cpu.rl(x);
+  EXPECT_EQ(1, m_cpu.F.carry());
+  EXPECT_EQ(1, m_cpu.F.zero());
+  EXPECT_EQ(0x00, (uint8_t)x);
+
+  x = 0x80;
+  m_cpu.F.set_carry();
+  m_cpu.rl(x);
+  EXPECT_EQ(1, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x01, (uint8_t)x);
+
+  x = 0x0A;
+  m_cpu.F.clear_carry();
+  m_cpu.rl(x);
+  EXPECT_EQ(0, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x14, (uint8_t)x);
 }
 
 TEST_F(CpuTest, rlc) {
-  EXPECT_EQ(0, 1);
+  Register x;
+  x = 0x55;
+  m_cpu.rlc(x);
+  EXPECT_EQ(0, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0xAA, (uint8_t)x);
+
+  x = 0x80;
+  m_cpu.rlc(x);
+  EXPECT_EQ(1, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x01, (uint8_t)x);
+
+  x = 0x80;
+  m_cpu.F.set_carry();
+  m_cpu.rlc(x);
+  EXPECT_EQ(1, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x01, (uint8_t)x);
+
+  x = 0x0A;
+  m_cpu.F.clear_carry();
+  m_cpu.rlc(x);
+  EXPECT_EQ(0, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x14, (uint8_t)x);
 }
 
 TEST_F(CpuTest, rrc) {
-  EXPECT_EQ(0, 1);
+  Register x;
+  x = 0x55;
+  m_cpu.rr(x);
+  EXPECT_EQ(1, m_cpu.F.carry());
+  EXPECT_EQ(0, m_cpu.F.zero());
+  EXPECT_EQ(0x2A, (uint8_t)x);
 }
 
 TEST_F(CpuTest, sbc) {

@@ -625,7 +625,23 @@ void CPU::rl(Register &reg) {
                   H - Reset.
                   C - Contains old bit 7 data.
   */
-  assert(0);
+  uint8_t c = F.carry();
+  uint8_t msb = (uint8_t)reg >> 7;
+  if(msb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  reg = (uint8_t)reg<<1 | c;
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
 void CPU::rrc(Register &reg) {
@@ -638,7 +654,23 @@ void CPU::rrc(Register &reg) {
                   H - Reset.
                   C - Contains old bit 0 data.
   */
-  assert(0);
+  uint8_t c = (uint8_t)reg << 7;
+  uint8_t lsb = (uint8_t)reg & 0x01;
+  if(lsb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  reg = (uint8_t)reg>>1 | c;
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
 void CPU::rlc(Register &reg) {
@@ -651,7 +683,23 @@ void CPU::rlc(Register &reg) {
                   H - Reset.
                   C - Contains old bit 7 data.
   */
-  assert(0);
+  uint8_t c = (uint8_t)reg&0x01;
+  uint8_t msb = (uint8_t)reg >> 7;
+  if(msb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  reg = (uint8_t)reg<<1 | msb;
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
 void CPU::rr(Register &reg) {
@@ -664,7 +712,23 @@ void CPU::rr(Register &reg) {
                   H - Reset.
                   C - Contains old bit 0 data.
   */
-  assert(0);
+  uint8_t c = F.carry() << 7;
+  uint8_t lsb = (uint8_t)reg & 0x01;
+  if(lsb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  reg = (uint8_t)reg>>1 | c;
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
 void CPU::sbc(Register &reg, const uint8_t n) {
