@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 #include "Cartridge.h"
-#include "CPU.h"
 
 class SerialPort {
 public:
@@ -25,4 +24,5 @@ public:
 private:
   CartridgeMemory *m_cartridge;
   SerialPort m_serialPort;
+  uint8_t hram[127];
 };

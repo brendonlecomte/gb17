@@ -1,7 +1,6 @@
 #include <iostream>
-#include "ALU.h"
 #include "Cartridge.h"
-#include "CPU.h"
+#include "CPU/CPU.h"
 #include "MMU.h"
 
 int main(int argc, char** argv){

@@ -1,14 +1,7 @@
+#include "CPU.h"
 #include <assert.h>
 
-#include "ALU.h"
-#include "CPU.h"
-
-CPU::CPU()
-    : A(), F(), B(), C(), D(), E(), H(), L(), AF(A, F), BC(B, C), DE(D, E), HL(H, L), SP(0xFFFE), PC(0x0000), alu(F) {}
-
-CPU::~CPU() {}
-
-void CPU::adc(const uint8_t n) {
+void CPU::adc(Register &reg, const uint8_t n) {
   /*
   ADC A,n  - Add n + Carry flag to A.
 
@@ -20,9 +13,9 @@ void CPU::adc(const uint8_t n) {
           H - Set if carry from bit 3.
           C - Set if carry from bit 7
   */
-  uint8_t res = alu.add(A, n, F.carry());
-  A = res;
-  if (A == 0) {
+  uint8_t res = alu.add(reg, n, F.carry());
+  reg = res;
+  if (reg == 0) {
     F.set_zero();
   } else {
     F.clear_zero();
@@ -30,7 +23,7 @@ void CPU::adc(const uint8_t n) {
   F.clear_subtract();
 }
 
-void CPU::add_a(const uint8_t n) {
+void CPU::add(Register &reg, const uint8_t n) {
   /*
   ADD A,n - Add n to A.
           n = A,B,C,D,E,H,L,(HL),#
@@ -40,9 +33,9 @@ void CPU::add_a(const uint8_t n) {
                   H - Set if carry from bit 3.
                   C - Set if carry from bit 7.
   */
-  uint8_t res = alu.add(A, n, 0);
-  A = res;
-  if (A == 0) {
+  uint8_t res = alu.add(reg, n, 0);
+  reg = res;
+  if (reg == 0) {
     F.set_zero();
   } else {
     F.clear_zero();
@@ -50,7 +43,7 @@ void CPU::add_a(const uint8_t n) {
   F.clear_subtract();
 }
 
-void CPU::add_HL(const uint16_t n) {
+void CPU::add(RegisterPair &reg, const uint16_t n) {
   /*
   ADD HL,n  - Add n to HL.
           n = BC,DE,HL
@@ -61,12 +54,12 @@ void CPU::add_HL(const uint16_t n) {
                   H - Set if carry from bit 11.
                   C - Set if carry from bit 15.
   */
-  uint16_t res = alu.add(HL, n, 0);
-  HL = res;
+  uint16_t res = alu.add(reg, n, 0);
+  reg = res;
   F.clear_subtract();
 }
 
-void CPU::add_SP(const int8_t n) {
+void CPU::addSigned(uint16_t &reg, const int8_t n) {
   /*
   ADD SP,n - Add n to Stack Pointer (SP).
 
@@ -78,13 +71,27 @@ void CPU::add_SP(const int8_t n) {
                   H - Set or reset according to operation.
                   C - Set or reset according to operation.
   */
-  uint16_t res = alu.add(SP, n, 0);
-  SP = res;
+  uint16_t temp = reg + n;
+
+  if(((reg ^ n ^ (temp & 0xFFFF)) & 0x10) == 0x10) {
+    F.set_half_carry();
+  }
+  else {
+    F.clear_half_carry();
+  }
+  if(((reg ^ n ^ (temp & 0xFFFF)) & 0x100) == 0x100) {
+    F.set_carry();
+  }
+  else {
+    F.clear_carry();
+  }
+
   F.clear_zero();
   F.clear_subtract();
+  reg = temp;
 }
 
-void CPU::and_a(const uint8_t n) {
+void CPU::andReg(Register &reg, const uint8_t n) {
   /*
   AND n  - Logically AND n with A, result in A.
 
@@ -96,8 +103,8 @@ void CPU::and_a(const uint8_t n) {
                   H - Set.
                   C - Reset.
   */
-  A = A & n;
-  if (A.value() == 0) {
+  reg = reg & n;
+  if (reg.value() == 0) {
     F.set_zero();
   }
   F.clear_subtract();
@@ -105,7 +112,7 @@ void CPU::and_a(const uint8_t n) {
   F.clear_carry();
 }
 
-void CPU::bit(const uint8_t b, const uint8_t r) {
+void CPU::bit(Register &r, const uint8_t b) {
   /*
   BIT b,r  - Test bit b in register r.
 
@@ -117,16 +124,19 @@ void CPU::bit(const uint8_t b, const uint8_t r) {
                   H - Set.
                   C - Not affected.
   */
-  uint8_t res = r & (0x01 << b);
+  uint8_t res = (r.value() >> b) & 0x01;
   if (res == 0) {
     F.set_zero();
+  }
+  else {
+    F.clear_zero();
   }
   F.clear_subtract();
   F.set_half_carry();
   F.clear_carry();
 }
 
-void CPU::call_n(const uint16_t n) {
+void CPU::callN(const uint16_t n) {
   /*
   CALL n        - Push address of next instruction onto
 
@@ -136,10 +146,11 @@ void CPU::call_n(const uint16_t n) {
                   None
   */
   // push(SP); //TODO: implement stack push
+  stack_push(PC);
   PC = n;
 }
 
-void CPU::call_cc(const uint8_t predicate, const uint16_t n) {
+void CPU::callCc(const uint16_t n, const uint8_t predicate) {
   /*CALL cc,n     - Call address n if following condition is true:
           cc = NZ, Call if Z flag is reset.
           cc = Z,  Call if Z flag is set.
@@ -150,7 +161,7 @@ void CPU::call_cc(const uint8_t predicate, const uint16_t n) {
                   None
   */
   if (predicate) {
-    call_n(n);
+    callN(n);
   }
 }
 
@@ -188,33 +199,35 @@ void CPU::daa(void) {
                   H - Reset.
                   C - Set of reset according to operation.
   */
-  // int16_t t = *A;
-  // if(!CPU_check_flag(SUBTRACT_FLAG)){
-  //     if(CPU_check_flag(HALF_CARRY_FLAG) || ((t & 0xF) > 9)){
-  //       t += 0x06;
-  //     }
-  //     if(CPU_check_flag(CARRY_FLAG) || (t > 0x9F)){
-  //       t += 0x60;
-  //       CPU_set_flag(CARRY_FLAG, 1);
-  //     }
-  // }
-  // else {
-  //      if(CPU_check_flag(HALF_CARRY_FLAG)) {
-  //         t = (t - 6) & 0xFF;
-  //       }
-  //
-  //       if(CPU_check_flag(CARRY_FLAG)){
-  //         t -= 0x60;
-  //       }
-  // }
-  // CPU_set_flag(HALF_CARRY_FLAG, 0);
-  // t &= 0xFF;
-  // CPU_set_flag(ZERO_FLAG, (t == 0));
-  // *A = t;
-  assert(0);
+  int16_t t = A.value();
+  if(!F.subtract()){
+      if(F.half_carry() || ((t & 0xF) > 9)){
+        t += 0x06;
+      }
+      if(F.carry() || (t > 0x9F)){
+        t += 0x60;
+        F.set_carry();
+      }
+  }
+  else {
+       if(F.half_carry()) {
+          t = (t - 6) & 0xFF;
+        }
+
+        if(F.carry()){
+          t -= 0x60;
+        }
+  }
+  F.clear_half_carry();
+  t &= 0xFF;
+  if (t ==0)
+    F.set_zero();
+  else
+    F.clear_zero();
+  A = t;
 }
 
-void CPU::cp(const uint8_t n) {
+void CPU::cp(Register &reg, const uint8_t n) {
   /*
   CP n          - Compare A with n.
           This is basically an A - n subtraction
@@ -228,11 +241,22 @@ void CPU::cp(const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set for no borrow. (Set if A < n.)
   */
-  // CPU_set_flag(ZERO_FLAG, (*A == n));
-  // CPU_set_flag(SUBTRACT_FLAG, 1);
-  // CPU_set_flag(HALF_CARRY_FLAG, (n&0x0F) > (*A&0x0F));
-  // CPU_set_flag(CARRY_FLAG, (*A < n));
-  assert(0);
+  if(reg.value() == n)
+    F.set_zero();
+  else
+    F.clear_zero();
+
+  F.set_subtract();
+
+  if((n&0x0F) > (reg.value()&0x0F))
+    F.set_half_carry();
+  else
+    F.clear_half_carry();
+
+  if(reg.value() < n)
+    F.set_carry();
+  else
+    F.clear_carry();
 }
 
 void CPU::cpl(void) {
@@ -249,10 +273,12 @@ void CPU::cpl(void) {
   // *A = t;
   // CPU_set_flag(SUBTRACT_FLAG, 1);
   // CPU_set_flag(HALF_CARRY_FLAG, 1);
-  assert(0);
+  A = ~A.value();
+  F.set_subtract();
+  F.set_half_carry();
 }
 
-void CPU::inc_n(uint8_t *reg) {
+void CPU::inc(Register &reg) {
   /*
   INC n         - Increment register n.
 
@@ -264,10 +290,22 @@ void CPU::inc_n(uint8_t *reg) {
                   H - Set if carry from bit 3.
                   C - Not affected.
   */
-  assert(0);
+  if(reg.value() == 0xF)
+    F.set_half_carry();
+  else
+    F.clear_half_carry();
+
+  reg = reg.value() + 1;
+
+  if((uint8_t)reg == 0)
+    F.set_zero();
+  else
+    F.clear_zero();
+
+  F.clear_subtract();
 }
 
-void CPU::dec_n(uint8_t *reg) {
+void CPU::dec(Register &reg) {
   /*
   DEC n         - Decrement register n.
 
@@ -279,10 +317,23 @@ void CPU::dec_n(uint8_t *reg) {
                   H - Set if no borrow from bit 4.
                   C - Not affected.
   */
-  assert(0);
+  if((reg.value()&0x0F) == 0)
+    F.set_half_carry();
+  else
+    F.clear_half_carry();
+
+  reg = reg.value() - 1;
+
+  if((uint8_t)reg == 0)
+    F.set_zero();
+  else
+    F.clear_zero();
+
+
+  F.set_subtract();
 }
 
-void CPU::inc_nn(uint16_t *reg) {
+void CPU::inc(RegisterPair &reg) {
   /*
   INC nn        - Increment register nn.
           n = BC,DE,HL,SP
@@ -290,10 +341,10 @@ void CPU::inc_nn(uint16_t *reg) {
           Flags affected:
                   None
   */
-  assert(0);
+  reg = reg.value() + 1;
 }
 
-void CPU::dec_nn(uint16_t *nn) {
+void CPU::dec(RegisterPair &reg) {
   /*
   DEC nn        - Decrement register nn.
 
@@ -302,7 +353,7 @@ void CPU::dec_nn(uint16_t *nn) {
           Flags affected:
                   None
   */
-  assert(0);
+  reg = reg.value() - 1;
 }
 
 void CPU::di(void) {
@@ -333,10 +384,10 @@ void CPU::jp(const uint16_t addr) {
           Flags affected:
                   None
   */
-  assert(0);
+  PC = addr;
 }
 
-void CPU::jp_hl(void) {
+void CPU::jpCc(const uint16_t addr, const uint8_t predicate) {
   /*
   JP cc,n       - Jump to address n if following condition
                   is true:
@@ -349,18 +400,11 @@ void CPU::jp_hl(void) {
           Flags affected:
                   None
   */
-  // TODO: Define for all these
-
-  /*
-  JP [HL]       - Jump to address contained in HL.
-
-          Flags affected:
-                  None
-  */
-  assert(0);
+  if(predicate)
+    jp(addr);
 }
 
-void CPU::jr(const uint8_t n) {
+void CPU::jr(const int8_t n) {
   /*
   JR n          - Add n to current address and jump to it.
           n = one byte signed immediate value.
@@ -368,10 +412,10 @@ void CPU::jr(const uint8_t n) {
           Flags affected:
                   None
   */
-  assert(0);
+  addSigned(PC, n);
 }
 
-void CPU::halt_cpu(void) {
+void CPU::halt(void) {
   /*
   HALT          - Power down CPU until an interrupt occurs.
           Flags affected:
@@ -380,16 +424,16 @@ void CPU::halt_cpu(void) {
   assert(0);
 }
 
-void CPU::set_b(const uint8_t b, uint8_t *r) {
+void CPU::setBit(Register &r, const uint8_t b) {
   /*
   SET b,r       - Set bit b in register r.
           b = 0-7, r = A,B,C,D,E,H,L,(HL)
           Flags affected        None
   */
-  assert(0);
+  r = r | (0x01 << b);
 }
 
-void CPU::load_a(const uint8_t n) {
+void CPU::load(Register &reg, const uint8_t n) {
   /*
   LD n,A        - Put value n into A.
 
@@ -398,17 +442,17 @@ void CPU::load_a(const uint8_t n) {
           Flags affected:
                   None
   */
-  assert(0);
+  reg = n;
 }
 
-void CPU::load_16(uint16_t *reg, const uint16_t n) {
+void CPU::load(RegisterPair &reg, const uint16_t n) {
   /*
   LD n,nn       - Put value nn into n.
           n = BC,DE,HL,SP
           nn = 16 bit immediate value
           Flags affected:    Non
   */
-  assert(0);
+  reg = n;
 }
 
 void CPU::nop(void) {
@@ -416,7 +460,6 @@ void CPU::nop(void) {
   NOP           - No operation.
           Flags affected:     None
   */
-  assert(0);
 }
 
 void CPU::scf(void) {
@@ -428,10 +471,12 @@ void CPU::scf(void) {
                   H - Reset.
                   C - Set.
   */
-  assert(0);
+  F.set_carry();
+  F.clear_subtract();
+  F.clear_half_carry();
 }
 
-void CPU::sla(uint8_t *n) {
+void CPU::sla(Register &reg) {
   /*
   SLA n         - Shift n left into Carry. LSBit of n set to 0.
           n = A,B,C,D,E,H,L,(HL)
@@ -441,10 +486,26 @@ void CPU::sla(uint8_t *n) {
                   H - Reset.
                   C - Contains old bit 7 data.
   */
-  assert(0);
+  uint8_t msb = reg.value() >> 7;
+  if (msb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  F.clear_subtract();
+  F.clear_half_carry();
+
+  reg = reg.value() << 1;
+  if ((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
+
 }
 
-void CPU::sra(uint8_t *n) {
+void CPU::sra(Register &reg) {
   /*
   SRA n         - Shift n right into Carry. MSBit doesn't change.
           n = A,B,C,D,E,H,L,(HL)
@@ -454,10 +515,26 @@ void CPU::sra(uint8_t *n) {
                   H - Reset.
                   C - Contains old bit 0 data.
   */
-  assert(0);
+  uint8_t msb = (uint8_t)reg & 0x80;
+  uint8_t lsb = (uint8_t)reg & 0x01;
+  if (lsb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  F.clear_subtract();
+  F.clear_half_carry();
+
+  reg = ((uint8_t)reg >> 1) | msb;
+  if ((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
-void CPU::srl(uint8_t *n) {
+void CPU::srl(Register &reg) {
   /*
   SRL n         - Shift n right into Carry. MSBit of n set to 0.
           n = A,B,C,D,E,H,L,(HL)
@@ -467,20 +544,36 @@ void CPU::srl(uint8_t *n) {
                   H - Reset.
                   C - Contains old bit 0 data.
   */
-  assert(0);
+  uint8_t lsb = (uint8_t)reg & 0x01;
+  if (lsb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  F.clear_subtract();
+  F.clear_half_carry();
+
+  reg = ((uint8_t)reg >> 1);
+  if ((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
 }
 
-void CPU::rst(const uint8_t n) {
+void CPU::rst(const uint16_t n) {
   /*
   RST n         - Push present address onto stack.
                   Jump to address $0000 + n.
           n = $00,$08,$10,$18,$20,$28,$30,$38
           Flags affected: none
   */
-  assert(0);
+  stack_push(PC);
+  PC = n;
 }
 
-void CPU::or_a(const uint8_t n) {
+void CPU::orReg(Register &reg, const uint8_t n) {
   /*
   OR n          - Logical OR n with register A, result in A.
           n = A,B,C,D,E,H,L,(HL),#
@@ -490,36 +583,25 @@ void CPU::or_a(const uint8_t n) {
                   H - Reset.
                   C - Reset.
   */
-  assert(0);
+  reg = reg.value() | n;
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  }
+  else {
+    F.clear_zero();
+  }
+  F.clear_carry();
+  F.clear_subtract();
+  F.clear_half_carry();
 }
 
-void CPU::pop(uint16_t *nn) {
-  /*
-  POP nn        - Pop two bytes off stack into register pair nn.
-                  Increment Stack Pointer (SP) twice.
-          nn = AF,BC,DE,HL
-          Flags affected: None
-  */
-  assert(0);
-}
-
-void CPU::push(const uint16_t nn) {
-  /*
-  PUSH nn       - Push register pair nn onto stack.
-                  Decrement Stack Pointer (SP) twice.
-          nn = AF,BC,DE,HL
-          Flags affected:    None
-  */
-  assert(0);
-}
-
-void CPU::res(uint8_t b, uint8_t *r) {
+void CPU::res(Register &reg, const uint8_t b) {
   /*
   RES b,r       - Reset bit b in register r.
           b = 0-7, r = A,B,C,D,E,H,L,(HL)
           Flags affected:    None
   */
-  assert(0);
+  reg = reg.value() & ~(0x01 << b);
 }
 
 void CPU::ret(void) {
@@ -527,10 +609,11 @@ void CPU::ret(void) {
   RET           - Pop two bytes from stack & jump to that address.
           Flags affected:   None
   */
-  assert(0);
+  uint16_t stacked_pc = stack_pop();
+  jp(stacked_pc);
 }
 
-void CPU::rl(uint8_t *n) {
+void CPU::rl(Register &reg) {
   /*
   RL n          - Rotate n left through Carry flag.
 
@@ -545,7 +628,7 @@ void CPU::rl(uint8_t *n) {
   assert(0);
 }
 
-void CPU::rrc(uint8_t *n) {
+void CPU::rrc(Register &reg) {
   /*
   RRC n         - Rotate n right. Old bit 0 to Carry flag.
           n = A,B,C,D,E,H,L,(HL)
@@ -558,7 +641,7 @@ void CPU::rrc(uint8_t *n) {
   assert(0);
 }
 
-void CPU::rlc(uint8_t *n) {
+void CPU::rlc(Register &reg) {
   /*
   RLC n         - Rotate n left. Old bit 7 to Carry flag.
           n = A,B,C,D,E,H,L,(HL)
@@ -571,7 +654,7 @@ void CPU::rlc(uint8_t *n) {
   assert(0);
 }
 
-void CPU::rr(uint8_t *n) {
+void CPU::rr(Register &reg) {
   /*
   RR n          - Rotate n right through Carry flag.
           n = A,B,C,D,E,H,L,(HL)
@@ -584,7 +667,7 @@ void CPU::rr(uint8_t *n) {
   assert(0);
 }
 
-void CPU::sbc(const uint8_t n) {
+void CPU::sbc(Register &reg, const uint8_t n) {
   /*
   SBC A,n       - Subtract n + Carry flag from A.
           n = A,B,C,D,E,H,L,(HL),#
@@ -597,7 +680,7 @@ void CPU::sbc(const uint8_t n) {
   assert(0);
 }
 
-void CPU::sub_n(const uint8_t n) {
+void CPU::sub(Register &reg, const uint8_t n) {
   /*
   SUB n         - Subtract n from A.
           n = A,B,C,D,E,H,L,(HL),#
@@ -607,7 +690,7 @@ void CPU::sub_n(const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set if no borrow.
   */
-  assert(0);
+  reg = alu.sub((uint8_t)reg, n);
 }
 
 void CPU::stop(void) {
@@ -617,7 +700,7 @@ void CPU::stop(void) {
   assert(0);
 }
 
-void CPU::swap(uint8_t *n) {
+void CPU::swap(Register &reg) {
   /*
   SWAP n        - Swap upper & lower bits of n.
           n = A,B,C,D,E,H,L,(HL)
@@ -627,10 +710,22 @@ void CPU::swap(uint8_t *n) {
                   H - Reset.
                   C - Reset.
   */
-  assert(0);
+  uint8_t low, high;
+  low = reg.value()&0x0F;
+  high = reg.value()&0xF0;
+  reg = (low<<4) | (high>>4);
+
+  if(reg.value() == 0)
+    F.set_zero();
+  else
+    F.clear_zero();
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  F.clear_carry();
 }
 
-void CPU::xor_a(const uint8_t n) {
+void CPU::xorReg(Register &reg, const uint8_t n) {
   /*
   XOR n         - Logical exclusive OR n with
                   register A, result in A.
@@ -641,5 +736,13 @@ void CPU::xor_a(const uint8_t n) {
                   H - Reset.
                   C - Reset.
   */
-  assert(0);
+  reg = reg.value() ^ n;
+  if(reg.value() == 0 )
+    F.set_zero();
+  else
+    F.clear_zero();
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  F.clear_carry();
 }

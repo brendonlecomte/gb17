@@ -5,8 +5,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
   switch (address) {
     case 0x0000 ... 0x3FFF:
       // 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
-      m_cartridge->read(address);
-      break;
+      return m_cartridge->read(address);
     case 0x4000 ... 0x7FFF:
       // 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
       break;
@@ -44,7 +43,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFF80 ... 0xFFFE:
       // High RAM (HRAM)
-      break;
+      return hram[((uint8_t)address & (~0xFF80))];
     case 0xFFFF:
       // Interrupt Enable Register
       break;
@@ -55,6 +54,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
   assert(address);
   return 0;
 }
+
 uint16_t MMU::read16bit(const uint16_t address) { return ((read8bit(address) << 8) | read8bit(address + 1)); }
 
 void MMU::write(const uint16_t address, const uint8_t data) {
@@ -99,8 +99,12 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       // I/O Ports
       break;
     case 0xFF80 ... 0xFFFE:
+    {
       // High RAM (HRAM)
+      uint8_t hram_address = ((uint8_t)address & (~0xFF80));
+      hram[hram_address] = data;
       break;
+    }
     case 0xFFFF:
       // Interrupt Enable Register
       break;
@@ -111,6 +115,6 @@ void MMU::write(const uint16_t address, const uint8_t data) {
 }
 
 void MMU::write(const uint16_t address, const uint16_t data) {
-  m_cartridge->write(address, data >> 8);
-  m_cartridge->write(address + 1, data);
+  write(address, (uint8_t)(data >> 8));
+  write(address + 1, (uint8_t)data);
 }

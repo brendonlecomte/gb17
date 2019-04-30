@@ -7,7 +7,8 @@ CartridgeMemory *Create(cart_type_e type, const char *filename) {
     case ROM_ONLY:
       return new RomOnlyCart(filename);
     default:
-      assert(0);
+      // assert(0);
+      break;
   }
   return NULL;
 }

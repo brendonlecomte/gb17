@@ -12,7 +12,7 @@ class Register{
       operator uint8_t()  { return value(); };
       void set(uint8_t new_value) { m_val = new_value; };
       void reset() { m_val = 0x00; };
-      uint8_t value() { return m_val; };
+      uint8_t value() const { return m_val; };
   protected:
       uint8_t m_val;
 };
@@ -55,6 +55,7 @@ class RegisterPair {
 
       uint8_t low() { return low_byte.value(); };
       uint8_t high(){ return high_byte.value(); };
+      void reset() { low_byte.reset(); high_byte.reset(); }
 
   private:
       Register& low_byte;
