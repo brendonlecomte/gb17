@@ -369,11 +369,11 @@ TEST_F(CpuTest, dec) {
   EXPECT_EQ(0x0054, (uint16_t)y);
 }
 
-TEST_F(CpuTest, di) {
+TEST_F(CpuTest, DISABLED_di) {
   EXPECT_EQ(0, 1);
 }
 
-TEST_F(CpuTest, ei) {
+TEST_F(CpuTest, DISABLED_ei) {
   EXPECT_EQ(0, 1);
 }
 
@@ -389,10 +389,17 @@ TEST_F(CpuTest, jp) {
 }
 
 TEST_F(CpuTest, jr) {
-  EXPECT_EQ(0, 1);
+  m_cpu.PC = 100;
+  m_cpu.jr(-1);
+  EXPECT_EQ(99, m_cpu.PC);
+
+  //bgb test
+  m_cpu.PC = 100;
+  m_cpu.jr(1);
+  EXPECT_EQ(101, m_cpu.PC);
 }
 
-TEST_F(CpuTest, halt_cpu) {
+TEST_F(CpuTest, DISABLED_halt_cpu) {
   EXPECT_EQ(0, 1);
 }
 
@@ -646,7 +653,7 @@ TEST_F(CpuTest, sub) {
     EXPECT_EQ(0xDA, (uint8_t)x);
 }
 
-TEST_F(CpuTest, stop) {
+TEST_F(CpuTest, DISABLED_stop) {
   EXPECT_EQ(0, 1);
 }
 
@@ -693,177 +700,4 @@ TEST_F(CpuTest, xorReg) {
   EXPECT_EQ(0, m_cpu.F.half_carry());
   EXPECT_EQ(0, m_cpu.F.subtract());
 }
-
-
 } // namespace
-
-// TEST(Instructions, di) {
-//   m_cpu.di();
-//   EXPECT_EQ(0, m_cpu.ime);
-// }
-//
-// TEST(Instructions, ei) {
-//   m_cpu.ei();
-//   EXPECT_EQ(1, m_cpu.ime);
-// }
-//
-// TEST(Instructions, jr) {
-//   m_cpu.PC = 0;
-//   m_cpu.jr(0x55);
-//   EXPECT_EQ(0x0056, m_cpu.PC);
-//
-//   m_cpu.PC = 0x000B;
-//   m_cpu.jr(0xFB);
-//   EXPECT_EQ(0x0007, m_cpu.PC);
-//
-//   m_cpu.PC = 0x0217;
-//   m_cpu.jr(0xFC);
-//   EXPECT_EQ(0x0214, m_cpu.PC);
-//
-//   m_cpu.AF = 0xC380;
-//   m_cpu.BC = 0x0000;
-//   m_cpu.DE = 0xFF56;
-//   m_cpu.HL = 0x0395;
-//   m_cpu.SP = 0xDFFF;
-//   m_cpu.PC = 0x0393;
-//   // m_cpu.PC += 1;
-//   m_cpu.jr(0x02);
-//   EXPECT_EQ(0xC380, m_cpu.AF);
-//   EXPECT_EQ(0x0000, m_cpu.BC);
-//   EXPECT_EQ(0xFF56, m_cpu.DE);
-//   EXPECT_EQ(0x0395, m_cpu.HL);
-//   EXPECT_EQ(0xDFFF, m_cpu.SP);
-//   EXPECT_EQ(0x0396, m_cpu.PC);
-// }
-//
-// TEST(Instructions, srl) {
-//   m_cpu.A = 0x01;
-//   m_cpu.srl(m_cpu.A);
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-//   m_cpu.A = 0x00;
-//   m_cpu.srl(m_cpu.A);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-// }
-// TEST(Instructions, ret) {
-//   CPU_stack_push(0x1234);
-//   m_cpu.ret();
-//   EXPECT_EQ(0x1234, m_cpu.PC);
-// }
-//
-// TEST(Instructions, rl) {
-//   uint8_t x = 0xAA;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.rl(&x);
-//   EXPECT_EQ(0x55, x);
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-//
-//   x = 0x55;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.rl(&x);
-//   EXPECT_EQ(0xAA, x);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-// }
-//
-// TEST(Instructions, rlc) {
-//   uint8_t x = 0xCC;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.rlc(&x);
-//   EXPECT_EQ(0x99, x);
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-//
-//   x = 0x66;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.rlc(&x);
-//   EXPECT_EQ(0xcc, x);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-// }
-//
-// TEST(Instructions, rr) {
-//   uint8_t x = 0x76;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.rr(&x);
-//   EXPECT_EQ(0x3B, x);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-//
-//
-//   x = 0x75;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.rr(&x);
-//   EXPECT_EQ(0xBA, x);
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-//   x = 0x00;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.rr(&x);
-//   EXPECT_EQ(0x00, x);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-//   EXPECT_EQ(1, m_cpu.F.zero());
-// }
-//
-// TEST(Instructions, rrc) {
-//   uint8_t x = 0xB8;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.rrc(&x);
-//   EXPECT_EQ(0x5c, x);
-//   EXPECT_EQ(0, m_cpu.F.carry());
-//
-//
-//   x = 0x4D;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.rrc(&x);
-//   EXPECT_EQ(0xA6, x);
-//   EXPECT_EQ(1, m_cpu.F.carry());
-// }
-//
-// TEST(Instructions, rst) {
-//   m_cpu.PC = 0x1234;
-//   m_cpu.rst(0x08);
-//   EXPECT_EQ(0x0008, m_cpu.PC);
-//   EXPECT_EQ(0x1234, CPU_stack_pop());
-// }
-//
-// TEST(Instructions, sbc) {
-//   m_cpu.A = 80;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.sbc(m_cpu.A, 16);
-//   EXPECT_EQ(63, m_cpu.A);
-//   // EXPECT_EQ(0, m_cpu.F.half_carry());
-//
-//
-//   // REF:
-//   // OP:0xc3 JP_a16    // PC:0xdef8 SP:0xdff1 // AF:0x0010 BC:0x1234 DE:0x5678 HL:0xdef4
-//   // OP:0xde SBC_A_d8  // PC:0xdefa SP:0xdff1 // AF:0xf070 BC:0x1234 DE:0x5678 HL:0xdef4
-//   m_cpu.A = 0x00;
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.sbc(m_cpu.A, 0x0F);
-//   EXPECT_EQ(0xf0, m_cpu.A);
-//   EXPECT_EQ(1, m_cpu.F.half_carry());
-//   EXPECT_EQ(0, m_cpu.F.zero());
-//   EXPECT_EQ(1, m_cpu.F.subtract());
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-//   //   AF:0x0F00 BC:0x1234 DE:0x5678 HL:0xDEF4 SP:0xDFF1 IME:0x0 IF:0x01 IE:0x00
-//   // PC:0xDEFA OP:0xDE AF:0x00C0
-//   m_cpu.A = 0x0F;
-//   m_cpu.F.set_carry( 0);
-//   m_cpu.sbc(m_cpu.A, 0x0F);
-//   EXPECT_EQ(0x00, m_cpu.A);
-//   EXPECT_EQ(0, m_cpu.F.half_carry());
-//   EXPECT_EQ(1, m_cpu.F.zero());
-//   EXPECT_EQ(1, m_cpu.F.subtract());
-//   EXPECT_EQ(0, m_cpu.F.carry());
-//
-//   m_cpu.A = 0x00;
-//   CPU_clear_all_flags();
-//   m_cpu.F.set_carry( 1);
-//   m_cpu.sbc(m_cpu.A, 0xFF);
-//   EXPECT_EQ(0x00, m_cpu.A);
-//   EXPECT_EQ(1, m_cpu.F.half_carry());
-//   EXPECT_EQ(1, m_cpu.F.zero());
-//   EXPECT_EQ(1, m_cpu.F.subtract;
-//   EXPECT_EQ(1, m_cpu.F.carry());
-//
-// }
