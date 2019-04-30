@@ -741,7 +741,8 @@ void CPU::sbc(Register &reg, const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set if no borrow.
   */
-  assert(0);
+  uint8_t x = n + F.carry();
+  reg = alu.sub((uint8_t)reg, x);
 }
 
 void CPU::sub(Register &reg, const uint8_t n) {

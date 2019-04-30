@@ -616,7 +616,19 @@ TEST_F(CpuTest, rrc) {
 }
 
 TEST_F(CpuTest, sbc) {
-  EXPECT_EQ(0, 1);
+  Register x,y;
+  RegisterPair z(x,y);
+
+  x = 0x50;
+  m_cpu.F.set_carry();
+  m_cpu.sbc(x, 0x10);
+  EXPECT_EQ(0x3F, (uint8_t)x);
+
+  //bgb test
+  z = 0xDF60;
+  m_cpu.F.clear_carry();
+  m_cpu.sbc(x, 0x05);
+  EXPECT_EQ(0xDA, (uint8_t)x);
 }
 
 TEST_F(CpuTest, sub) {
