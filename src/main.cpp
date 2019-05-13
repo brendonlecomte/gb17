@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iterator>
 #include <csignal>
-#include <assert>
+#include <assert.h>
 
 #include "CPU/CPU.h"
 #include "MMU/MMU.h"
