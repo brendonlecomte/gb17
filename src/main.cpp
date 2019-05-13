@@ -1,25 +1,57 @@
 #include <iostream>
-#include "Cartridge.h"
+#include <iterator>
+#include <csignal>
+
 #include "CPU/CPU.h"
-#include "MMU.h"
+#include "MMU/MMU.h"
+#include "MMU/Cartridge.h"
+#include "PPU/PPU.h"
+
+std::vector<uint8_t> rom;
+Cartridge game_cart = Cartridge(rom);
+MMU memory_manager = MMU(game_cart.getMemoryController());
+CPU test_cpu = CPU(memory_manager, &std::cout);
+PPU test_ppu = PPU(memory_manager);
+
+void onExit(int sigNum) {
+  std::cout << std::endl
+            << "------------- Core Dump --------------"
+            << std::endl;
+  test_cpu.coreDump();
+  exit(sigNum);
+}
 
 int main(int argc, char** argv){
-  uint8_t a, b, c;
-  uint8_t res = 66;
-  a = 5;
-  b = 5;
-  Cartridge game_cart = Cartridge("../roms/Tetris.gb");
-  MMU memory_manager = MMU(game_cart.getMemoryController());
-  // game_cart.write(0, 0xAA);
-  std::cout << game_cart.cart_header << std::endl;
+  //test specifif stuff
+  signal (SIGINT, onExit); //dump core on exit for debugging
+  signal (SIGABRT, onExit);
 
-  memory_manager.write(0, (uint8_t)0xAA);
-  memory_manager.write(10,(uint16_t) 0x5555);
 
-  std::cout << std::hex << unsigned(memory_manager.read8bit(0)) << std::endl;
-  std::cout << std::hex << unsigned(memory_manager.read16bit(10)) << std::endl;
-  //
-  // memory_manager.write(0xFF01, (uint8_t)'T');
+  //fake stuff for retro_init?
+  //object creation etc....
+
+  //fake stuff for retro_load_game()
+  std::ifstream file("../gb-test-roms/cpu_instrs/individual/06-ld r,r.gb", std::ios::binary);
+  file.unsetf(std::ios::skipws);
+  std::streampos fileSize;
+  file.seekg(0, std::ios::end);
+  fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+  std::copy(std::istream_iterator<uint8_t>(file), std::istream_iterator<uint8_t>(),
+  			  std::back_inserter(rom));
+  std::cout << std::hex << unsigned(rom[0]) <<std::endl;
+
+  // retro_run()
+  while(1) {
+    unsigned saved_pc = test_cpu.PC;
+    OpCode op = test_cpu.readOp();
+    uint32_t clocks = test_cpu.execute_op(op);
+    test_ppu.update(clocks);
+    std::cout << std::endl;
+    if(test_cpu.PC == 0x100 || test_cpu.PC > 0x1000) {
+      assert(0);
+    }
+  }
 
   std::cout << std::endl;
   return 0;

@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <stdint.h>
+#include <vector>
 
 enum cart_type_e {
   ROM_ONLY = 0,
@@ -67,15 +68,17 @@ public:
   void print(std::ostream &out) const;
   cart_type_e getCartType() { return (cart_type_e)cart_type; };
   void populate(std::istream &in);
+  void populate(std::vector<uint8_t>& rom);
   friend std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c);
   friend std::istream &operator>>(std::istream &in, CartridgeHeader &c);
 
-private:
+
   std::string getTypeStr() const;
   std::string getRomSizeStr() const;
   std::string getRamSizeStr() const;
   std::string getDestStr() const;
-
+  
+private:
   uint8_t entry[0x04];  // 0x100-103
   uint8_t logo[0x30];   // 0x104 - 0x133
   char title[0x0F];     // 0x134 - 0x143

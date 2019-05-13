@@ -6,6 +6,7 @@
 class Register{
   public:
       Register() : m_val(0) {}
+      Register(const uint8_t val) : m_val(val) {}
       ~Register() {};
 
       Register& operator =(const uint8_t& value) { set(value); return *this; };

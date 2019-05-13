@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/Cartridge.h"
+#include "../src/MMU/Cartridge.h"
 
 
 namespace {
@@ -8,11 +8,32 @@ namespace {
 class CartridgeHeaderTest : public ::testing::Test {
  protected:
   // You can remove any or all of the following functions if its body
-  // is empty.
-  Cartridge cart = Cartridge("../roms/Tetris.gb");
+  // is empty.std::ifstream file(filename, std::ios::binary);
+
+  std::vector<uint8_t> rom;
+  Cartridge cart = Cartridge(rom);
 
   CartridgeHeaderTest() {
-     // You can do set-up work for each test here.
+    // Stop eating new lines in binary mode!!!
+    std::ifstream file("../roms/Tetris.gb", std::ios::binary);
+
+ // Stop eating new lines in binary mode!!!
+    file.unsetf(std::ios::skipws);
+
+    // get its size:
+    std::streampos fileSize;
+
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // reserve capacity
+    // rom.reserve(fileSize);
+
+    // read the data:
+    rom.insert(rom.begin(),
+               std::istream_iterator<uint8_t>(file),
+               std::istream_iterator<uint8_t>());
   }
 
   ~CartridgeHeaderTest() override {

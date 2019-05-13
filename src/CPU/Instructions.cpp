@@ -133,7 +133,6 @@ void CPU::bit(Register &r, const uint8_t b) {
   }
   F.clear_subtract();
   F.set_half_carry();
-  F.clear_carry();
 }
 
 void CPU::callN(const uint16_t n) {
@@ -147,22 +146,9 @@ void CPU::callN(const uint16_t n) {
   */
   // push(SP); //TODO: implement stack push
   stack_push(PC);
+  if(debug)
+    *debug << unsigned(PC) << std::endl;
   PC = n;
-}
-
-void CPU::callCc(const uint16_t n, const uint8_t predicate) {
-  /*CALL cc,n     - Call address n if following condition is true:
-          cc = NZ, Call if Z flag is reset.
-          cc = Z,  Call if Z flag is set.
-          cc = NC, Call if C flag is reset.
-          cc = C,  Call if C flag is set.
-
-          Flags affected:
-                  None
-  */
-  if (predicate) {
-    callN(n);
-  }
 }
 
 void CPU::ccf(void) {
@@ -269,10 +255,6 @@ void CPU::cpl(void) {
                   H - Set.
                   C - Not affected.
   */
-  // uint8_t t = ~*A;
-  // *A = t;
-  // CPU_set_flag(SUBTRACT_FLAG, 1);
-  // CPU_set_flag(HALF_CARRY_FLAG, 1);
   A = ~A.value();
   F.set_subtract();
   F.set_half_carry();
@@ -387,22 +369,6 @@ void CPU::jp(const uint16_t addr) {
   PC = addr;
 }
 
-void CPU::jpCc(const uint16_t addr, const uint8_t predicate) {
-  /*
-  JP cc,n       - Jump to address n if following condition
-                  is true:
-          n = two byte immediate value. (LSByte first.)
-          cc = NZ, Jump if Z flag is reset.
-    cc = Z,  Jump if Z flag is set.
-          cc = NC, Jump if C flag is reset.
-    cc = C,  Jump if C flag is set.
-
-          Flags affected:
-                  None
-  */
-  if(predicate)
-    jp(addr);
-}
 
 void CPU::jr(const int8_t n) {
   /*
@@ -424,14 +390,15 @@ void CPU::halt(void) {
   assert(0);
 }
 
+/*
+SET b,r       - Set bit b in register r.
+        b = 0-7, r = A,B,C,D,E,H,L,(HL)
+        Flags affected        None
+*/
 void CPU::setBit(Register &r, const uint8_t b) {
-  /*
-  SET b,r       - Set bit b in register r.
-          b = 0-7, r = A,B,C,D,E,H,L,(HL)
-          Flags affected        None
-  */
   r = r | (0x01 << b);
 }
+
 
 void CPU::load(Register &reg, const uint8_t n) {
   /*
@@ -445,6 +412,10 @@ void CPU::load(Register &reg, const uint8_t n) {
   reg = n;
 }
 
+void CPU::load(uint8_t &reg, const uint8_t n) {
+  reg = n;
+}
+
 void CPU::load(RegisterPair &reg, const uint16_t n) {
   /*
   LD n,nn       - Put value nn into n.
@@ -454,6 +425,15 @@ void CPU::load(RegisterPair &reg, const uint16_t n) {
   */
   reg = n;
 }
+
+void CPU::load(uint16_t &reg, const uint16_t n) {
+  reg = n;
+}
+
+void CPU::load(MemRef &reg, const uint8_t n) {
+  reg = n;
+}
+
 
 void CPU::nop(void) {
   /*
@@ -610,6 +590,8 @@ void CPU::ret(void) {
           Flags affected:   None
   */
   uint16_t stacked_pc = stack_pop();
+  if(debug)
+    *debug << unsigned(stacked_pc) << std::endl;
   jp(stacked_pc);
 }
 

@@ -13,8 +13,8 @@ set(sources "src/main.cpp"
             "src/CPU/ALU.cpp"
             "src/CPU/CPU.cpp"
             "src/CPU/Instructions.cpp"
-            "src/Cartridge.cpp"
-            "src/Cartridge_Header.cpp"
-            "src/MMU.cpp")
+            "src/MMU/Cartridge.cpp"
+            "src/MMU/Cartridge_Header.cpp"
+            "src/MMU/MMU.cpp")
 
 add_executable(gb17 ${sources})

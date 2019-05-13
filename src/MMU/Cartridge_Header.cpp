@@ -143,6 +143,23 @@ void CartridgeHeader::populate(std::istream &in) {
   in.read((char *)&checksum, sizeof( checksum));
 }
 
+void CartridgeHeader::populate(std::vector<uint8_t> &rom) {
+  // in.read((char *)&entry[0], sizeof(entry));
+  // in.read((char *)&logo[0], sizeof( logo));
+  //memcpy(&title[0], &rom[0x134], 0xF); // in.read(&title[0], sizeof(title));
+  // in.read((char *)&cgb_flag, sizeof( cgb_flag));
+  // in.read((char *)&licensee, sizeof( licensee));
+  // in.read((char *)&sgb_flag, sizeof( sgb_flag));
+  // in.read((char *)&cart_type, sizeof( cart_type));
+  // in.read((char *)&rom_size, sizeof( rom_size));
+  // in.read((char *)&ram_size, sizeof( ram_size));
+  // in.read((char *)&dest_code, sizeof( dest_code));
+  // in.read((char *)&old_licensee, sizeof( old_licensee));
+  // in.read((char *)&version, sizeof( version));
+  // in.read((char *)&header_checksum, sizeof( header_checksum));
+  // in.read((char *)&checksum, sizeof( checksum));
+}
+
 std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c) {
   c.print(out);
   return out;
