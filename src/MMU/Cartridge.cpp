@@ -13,7 +13,28 @@ CartridgeMemory* Create(cart_type_e type, std::vector<uint8_t> &loaded_rom) {
   return NULL;
 }
 
-Cartridge::Cartridge(std::vector<uint8_t> &loaded_rom) : rom(loaded_rom) {
-  cart_header.populate(loaded_rom);
-  memory_controller = Create(cart_header.getCartType(), loaded_rom);
+Cartridge::Cartridge(const char* filename) {
+  std::ifstream file(filename, std::ios::binary);
+
+// Stop eating new lines in binary mode!!!
+  file.unsetf(std::ios::skipws);
+
+  // get its size:
+  std::streampos fileSize;
+
+  file.seekg(0, std::ios::end);
+  fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  // reserve capacity
+  rom.resize(fileSize);
+
+  // read the data:
+  rom.insert(rom.begin(),
+             std::istream_iterator<uint8_t>(file),
+             std::istream_iterator<uint8_t>());
+
+  cart_header.populate(rom);
+
+  memory_controller = Create(cart_header.getCartType(), rom);
 }

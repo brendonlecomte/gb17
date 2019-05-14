@@ -72,12 +72,12 @@ public:
   friend std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c);
   friend std::istream &operator>>(std::istream &in, CartridgeHeader &c);
 
-
   std::string getTypeStr() const;
   std::string getRomSizeStr() const;
   std::string getRamSizeStr() const;
   std::string getDestStr() const;
-  
+  std::string getTitleStr() const;
+
 private:
   uint8_t entry[0x04];  // 0x100-103
   uint8_t logo[0x30];   // 0x104 - 0x133

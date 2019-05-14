@@ -1,6 +1,6 @@
 #include "Cartridge_Header.h"
 #include <assert.h>
-
+#include <algorithm>
 
 std::string CartridgeHeader::getTypeStr() const {
   switch (this->cart_type) {
@@ -144,20 +144,24 @@ void CartridgeHeader::populate(std::istream &in) {
 }
 
 void CartridgeHeader::populate(std::vector<uint8_t> &rom) {
-  // in.read((char *)&entry[0], sizeof(entry));
-  // in.read((char *)&logo[0], sizeof( logo));
-  //memcpy(&title[0], &rom[0x134], 0xF); // in.read(&title[0], sizeof(title));
-  // in.read((char *)&cgb_flag, sizeof( cgb_flag));
-  // in.read((char *)&licensee, sizeof( licensee));
-  // in.read((char *)&sgb_flag, sizeof( sgb_flag));
-  // in.read((char *)&cart_type, sizeof( cart_type));
-  // in.read((char *)&rom_size, sizeof( rom_size));
-  // in.read((char *)&ram_size, sizeof( ram_size));
-  // in.read((char *)&dest_code, sizeof( dest_code));
-  // in.read((char *)&old_licensee, sizeof( old_licensee));
-  // in.read((char *)&version, sizeof( version));
-  // in.read((char *)&header_checksum, sizeof( header_checksum));
-  // in.read((char *)&checksum, sizeof( checksum));
+  std::copy(rom.begin() + 0x100, rom.begin() + 0x103, entry);
+  std::copy(rom.begin() + 0x104, rom.begin() + 0x133, logo);
+  std::copy(rom.begin() + 0x134, rom.begin() + 0x142, title);
+  cgb_flag = rom[0x143];
+  licensee = (uint16_t)rom[0x144];
+  sgb_flag = rom[0x146];
+  cart_type = rom[0x147];
+  rom_size = rom[0x148];
+  ram_size = rom[0x149];
+  // std::copy(rom.begin() + 0x134, rom.begin() + 0x142, dest_code);
+  // std::copy(rom.begin() + 0x134, rom.begin() + 0x142, old_licensee);
+  version = rom[0x14D];
+  // std::copy(rom.begin() + 0x14E, rom.begin() + 0x14F, checksum);
+}
+
+std::string CartridgeHeader::getTitleStr(void) const{
+  std::string s = std::string(title);
+  return s;
 }
 
 std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c) {

@@ -8,8 +8,7 @@
 #include "MMU/Cartridge.h"
 #include "PPU/PPU.h"
 
-std::vector<uint8_t> rom;
-Cartridge game_cart = Cartridge(rom);
+Cartridge game_cart = Cartridge("../gb-test-roms/cpu_instrs/individual/01-special.gb");
 MMU memory_manager = MMU(game_cart.getMemoryController());
 CPU test_cpu = CPU(memory_manager, &std::cout);
 PPU test_ppu = PPU(memory_manager);
@@ -32,15 +31,6 @@ int main(int argc, char** argv){
   //object creation etc....
 
   //fake stuff for retro_load_game()
-  std::ifstream file("../gb-test-roms/cpu_instrs/individual/06-ld r,r.gb", std::ios::binary);
-  file.unsetf(std::ios::skipws);
-  std::streampos fileSize;
-  file.seekg(0, std::ios::end);
-  fileSize = file.tellg();
-  file.seekg(0, std::ios::beg);
-  std::copy(std::istream_iterator<uint8_t>(file), std::istream_iterator<uint8_t>(),
-  			  std::back_inserter(rom));
-  std::cout << std::hex << unsigned(rom[0]) <<std::endl;
 
   // retro_run()
   while(1) {

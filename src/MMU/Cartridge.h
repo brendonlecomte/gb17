@@ -22,14 +22,13 @@ private:
 
 class Cartridge {
 public:
-  Cartridge(std::vector<uint8_t> &loaded_rom);
+  Cartridge(const char* filename);
   ~Cartridge(){};
-
   CartridgeMemory* getMemoryController() { return memory_controller; };
   CartridgeHeader& getCartHeader() { return cart_header; };
 CartridgeHeader cart_header;
 private:
 
   CartridgeMemory* memory_controller;
-  std::vector<uint8_t> &rom;
+  std::vector<uint8_t> rom;
 };

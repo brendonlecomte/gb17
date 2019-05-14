@@ -8,32 +8,12 @@ class CpuTest : public ::testing::Test {
 protected:
   // You can remove any or all of the following functions if its body
   // is empty.
-  std::vector<uint8_t> rom;
-  Cartridge cart = Cartridge(rom);
+  Cartridge cart  = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
   MMU m_mmu = MMU(cart.getMemoryController());
   CPU m_cpu = CPU(m_mmu, NULL);
 
   CpuTest() {
-    // You can do set-up work for each test here.
-    std::ifstream file("../roms/Tetris.gb", std::ios::binary);
 
- // Stop eating new lines in binary mode!!!
-    file.unsetf(std::ios::skipws);
-
-    // get its size:
-    std::streampos fileSize;
-
-    file.seekg(0, std::ios::end);
-    fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    // reserve capacity
-    // rom.reserve(fileSize);
-
-    // read the data:
-    rom.insert(rom.begin(),
-               std::istream_iterator<uint8_t>(file),
-               std::istream_iterator<uint8_t>());
   }
 
   ~CpuTest() override {
@@ -51,7 +31,6 @@ protected:
     m_cpu.DE.reset();
     m_cpu.HL.reset();
     m_cpu.SP = 0xFFFE;
-
   }
 
   void TearDown() override {
