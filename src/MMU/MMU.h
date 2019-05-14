@@ -27,6 +27,7 @@ private:
   SerialPort m_serialPort;
   uint8_t hram[127];
   uint8_t io[127];
+  uint8_t vram[0x1FFF];
 };
 
 class MemRef {

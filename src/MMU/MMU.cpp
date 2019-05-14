@@ -15,6 +15,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
+      return vram[address & (~0x8000)];
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
@@ -72,6 +73,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
+      vram[address & (~0x8000)] = data;
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
