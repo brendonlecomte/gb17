@@ -1,6 +1,7 @@
 #include "Cartridge.h"
 #include "Cartridge_Header.h"
 #include <assert.h>
+#include <iterator>
 
 CartridgeMemory* Create(cart_type_e type, std::vector<uint8_t> &loaded_rom) {
   switch (type) {
