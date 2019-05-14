@@ -4,15 +4,13 @@
 
 uint8_t MMU::read8bit(const uint16_t address) {
   switch (address) {
-    case 0x0000 ... 0x3FFF:
+    case 0x0000 ... 0x7FFF:
       if(boot_mode && address < 0x100) {
         return bootDMG[address];
       }
-      // 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+      // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+      // 0x4000 - 0x7fff 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
       return m_cartridge->read(address);
-    case 0x4000 ... 0x7FFF:
-      // 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
-      break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
       return vram[address & (~0x8000)];
@@ -66,10 +64,8 @@ uint16_t MMU::read16bit(const uint16_t address) { return ((read8bit(address +1 )
 void MMU::write(const uint16_t address, const uint8_t data) {
   switch (address) {
     case 0x0000 ... 0x3FFF:
-      // 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
-      break;
-    case 0x4000 ... 0x7FFF:
-      // 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
+      // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+      // 0x4000 - 0x7fff 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
