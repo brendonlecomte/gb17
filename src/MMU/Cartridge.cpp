@@ -19,7 +19,11 @@ CartridgeMemory* Create(CartType type, std::vector<uint8_t> &loaded_rom) {
 Cartridge::Cartridge(const char* filename) {
   std::ifstream file(filename, std::ios::binary);
 
-// Stop eating new lines in binary mode!!!
+  //ensure file exists
+  if(!file) {
+    assert(0);
+  }
+  // Stop eating new lines in binary mode!!!
   file.unsetf(std::ios::skipws);
 
   // get its size:
