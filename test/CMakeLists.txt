@@ -47,3 +47,7 @@ add_test(NAME Test_CPU COMMAND gb17_test_cpu)
 add_executable(gb17_test_cart_header "test_cartridge_header.cpp" ${core_sources})
 target_link_libraries(gb17_test_cart_header gtest_main)
 add_test(NAME Test_Cart COMMAND gb17_test_cart_header)
+
+add_executable(gb17_test_boot "test_boot.cpp" ${core_sources})
+target_link_libraries(gb17_test_boot gtest_main)
+add_test(NAME Test_Boot COMMAND gb17_test_boot)
