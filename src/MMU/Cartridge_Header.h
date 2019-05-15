@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <vector>
 
-enum cart_type_e {
+enum class CartType : uint8_t {
   ROM_ONLY = 0,
   MBC1 = 0x01,
   MBC1_RAM = 0x02,
@@ -66,7 +66,7 @@ public:
   CartridgeHeader(){};
   ~CartridgeHeader(){};
   void print(std::ostream &out) const;
-  cart_type_e getCartType() { return (cart_type_e)cart_type; };
+  CartType getCartType() { return (CartType)cart_type; };
   void populate(std::istream &in);
   void populate(std::vector<uint8_t>& rom);
   friend std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c);
@@ -85,7 +85,7 @@ private:
   uint8_t cgb_flag;     // 0x143
   uint16_t licensee;    // 0x144 - 0x145
   uint8_t sgb_flag;     // 0x146
-  uint8_t cart_type;    // 0x147
+  CartType cart_type;    // 0x147
   uint8_t rom_size;     // 0x148
   uint8_t ram_size;     // 0x149
   uint8_t dest_code;    /// 0x14A

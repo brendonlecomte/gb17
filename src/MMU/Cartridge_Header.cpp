@@ -4,63 +4,63 @@
 
 std::string CartridgeHeader::getTypeStr() const {
   switch (this->cart_type) {
-    case ROM_ONLY:
+    case CartType::ROM_ONLY:
       return "ROM_ONLY";
-    case MBC1:
+    case CartType::MBC1:
       return "MBC1";
-    case MBC1_RAM:
+    case CartType::MBC1_RAM:
       return "MBC1_RAM";
-    case MBC1_RAM_BATTERY:
+    case CartType::MBC1_RAM_BATTERY:
       return "MBC1_RAM_BATTERY";
-    case MBC2:
+    case CartType::MBC2:
       return "MBC2";
-    case MBC2_BATTERY:
+    case CartType::MBC2_BATTERY:
       return "MBC2_BATTERY";
-    case ROM_RAM:
+    case CartType::ROM_RAM:
       return "ROM_RAM";
-    case ROM_RAM_BATTERY:
+    case CartType::ROM_RAM_BATTERY:
       return "ROM_RAM_BATTERY";
-    case MMM01:
+    case CartType::MMM01:
       return "MMM01";
-    case MMM01_RAM:
+    case CartType::MMM01_RAM:
       return "MMM01_RAM";
-    case MMM01_RAM_BATTERY:
+    case CartType::MMM01_RAM_BATTERY:
       return "MMM01_RAM_BATTERY";
-    case MBC3_TIMER_BATTERY:
+    case CartType::MBC3_TIMER_BATTERY:
       return "MBC3_TIMER_BATTERY";
-    case MBC3_TIMER_RAM_BATTERY:
+    case CartType::MBC3_TIMER_RAM_BATTERY:
       return "MBC3_TIMER_RAM_BATTERY";
-    case MBC3:
+    case CartType::MBC3:
       return "MBC3";
-    case MBC3_RAM:
+    case CartType::MBC3_RAM:
       return "MBC3_RAM";
-    case MBC3_RAM_BATTERY:
+    case CartType::MBC3_RAM_BATTERY:
       return "MBC3_RAM_BATTERY";
-    case MBC4:
+    case CartType::MBC4:
       return "MBC4";
-    case MBC4_RAM:
+    case CartType::MBC4_RAM:
       return "MBC4_RAM";
-    case MBC4_RAM_BATTERY:
+    case CartType::MBC4_RAM_BATTERY:
       return "MBC4_RAM_BATTERY";
-    case MBC5:
+    case CartType::MBC5:
       return "MBC5";
-    case MBC5_RAM:
+    case CartType::MBC5_RAM:
       return "MBC5_RAM";
-    case MBC5_RAM_BATTERY:
+    case CartType::MBC5_RAM_BATTERY:
       return "MBC5_RAM_BATTERY";
-    case MBC5_RUMBLE:
+    case CartType::MBC5_RUMBLE:
       return "MBC5_RUMBLE";
-    case MBC5_RUMBLE_RAM:
+    case CartType::MBC5_RUMBLE_RAM:
       return "MBC5_RUMBLE_RAM";
-    case MBC5_RUMBLE_RAM_BATTERY:
+    case CartType::MBC5_RUMBLE_RAM_BATTERY:
       return "MBC5_RUMBLE_RAM_BATTERY";
-    case CAMERA:
+    case CartType::CAMERA:
       return "CAMERA";
-    case BANDAI:
+    case CartType::BANDAI:
       return "BANDAI";
-    case HUC3:
+    case CartType::HUC3:
       return "HUC3";
-    case HUC1_MBC_RAM_BATTERY:
+    case CartType::HUC1_MBC_RAM_BATTERY:
       return "HUC1_MBC_RAM_BATTER";
   }
   return "ERROR";
@@ -150,7 +150,7 @@ void CartridgeHeader::populate(std::vector<uint8_t> &rom) {
   cgb_flag = rom[0x143];
   licensee = (uint16_t)rom[0x144];
   sgb_flag = rom[0x146];
-  cart_type = rom[0x147];
+  cart_type = static_cast<CartType>(rom[0x147]);
   rom_size = rom[0x148];
   ram_size = rom[0x149];
   // std::copy(rom.begin() + 0x134, rom.begin() + 0x142, dest_code);

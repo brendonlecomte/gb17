@@ -20,6 +20,24 @@ private:
   std::vector<uint8_t> &rom;
 };
 
+class MBC1 : public CartridgeMemory {
+public:
+  MBC1(std::vector<uint8_t> &loaded_rom) : rom(loaded_rom),
+                                           ram_bank(0),
+                                           rom_bank(0),
+                                           mem_mode_select(0),
+                                           ram_enabled(0) {};
+  uint8_t read(const uint16_t addr);
+  void write(const uint16_t addr, const uint8_t data);
+private:
+  std::vector<uint8_t> &rom;
+  std::vector<uint8_t> ram;
+  uint8_t ram_bank;
+  uint8_t rom_bank;
+  bool mem_mode_select;
+  bool ram_enabled;
+};
+
 class Cartridge {
 public:
   Cartridge(const char* filename);
