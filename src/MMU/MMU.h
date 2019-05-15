@@ -20,6 +20,7 @@ public:
 
   void write(const uint16_t address, const uint8_t data);
   void write(const uint16_t address, const uint16_t data);
+  void setBootMode(bool mode) { boot_mode = mode; };
 
 private:
   bool boot_mode;
