@@ -145,9 +145,7 @@ void CPU::callN(const uint16_t n) {
                   None
   */
   // push(SP); //TODO: implement stack push
-  stack_push(PC);
-  if(debug)
-    *debug << unsigned(PC) << std::endl;
+  stackPush(PC);
   PC = n;
 }
 
@@ -272,12 +270,12 @@ void CPU::inc(Register &reg) {
                   H - Set if carry from bit 3.
                   C - Not affected.
   */
-  if(reg.value() == 0xF)
+  if(((uint8_t)reg & 0xF) == 0xF)
     F.set_half_carry();
   else
     F.clear_half_carry();
 
-  reg = reg.value() + 1;
+  reg = (uint8_t)reg + 1;
 
   if((uint8_t)reg == 0)
     F.set_zero();
@@ -299,19 +297,17 @@ void CPU::dec(Register &reg) {
                   H - Set if no borrow from bit 4.
                   C - Not affected.
   */
-  if((reg.value()&0x0F) == 0)
+  if(((uint8_t)reg &0x0F) == 0)
     F.set_half_carry();
   else
     F.clear_half_carry();
 
-  reg = reg.value() - 1;
+  reg = (uint8_t)reg - 1;
 
   if((uint8_t)reg == 0)
     F.set_zero();
   else
     F.clear_zero();
-
-
   F.set_subtract();
 }
 
@@ -323,7 +319,7 @@ void CPU::inc(RegisterPair &reg) {
           Flags affected:
                   None
   */
-  reg = reg.value() + 1;
+  reg = (uint16_t)reg + 1;
 }
 
 void CPU::dec(RegisterPair &reg) {
@@ -335,27 +331,7 @@ void CPU::dec(RegisterPair &reg) {
           Flags affected:
                   None
   */
-  reg = reg.value() - 1;
-}
-
-void CPU::di(void) {
-  /*
-  DI            - Disable interrupts.
-          Flags affected: None
-  */
-  assert(0);
-}
-
-void CPU::ei(void) {
-  /*
-  EI            - Enable interrupts.
-          This instruction enables the interrupts but not immediately.
-          Interrupts are enabled after the instruction after EI is
-          executed.
-
-          Flags affected: None
-  */
-  assert(0);
+  reg = (uint16_t)reg - 1;
 }
 
 void CPU::jp(const uint16_t addr) {
@@ -378,7 +354,7 @@ void CPU::jr(const int8_t n) {
           Flags affected:
                   None
   */
-  addSigned(PC, n);
+  PC += n;
 }
 
 void CPU::halt(void) {
@@ -549,7 +525,7 @@ void CPU::rst(const uint16_t n) {
           n = $00,$08,$10,$18,$20,$28,$30,$38
           Flags affected: none
   */
-  stack_push(PC);
+  stackPush(PC);
   PC = n;
 }
 
@@ -589,9 +565,7 @@ void CPU::ret(void) {
   RET           - Pop two bytes from stack & jump to that address.
           Flags affected:   None
   */
-  uint16_t stacked_pc = stack_pop();
-  if(debug)
-    *debug << unsigned(stacked_pc) << std::endl;
+  uint16_t stacked_pc = stackPop();
   jp(stacked_pc);
 }
 

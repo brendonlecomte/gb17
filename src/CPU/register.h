@@ -5,8 +5,8 @@
 
 class Register{
   public:
-      Register() : m_val(0) {}
-      Register(const uint8_t val) : m_val(val) {}
+      Register(uint8_t val = 0) : m_val(val) {}
+      // Register(const uint8_t val) : m_val(val) {}
       ~Register() {};
 
       Register& operator =(const uint8_t& value) { set(value); return *this; };
@@ -18,10 +18,6 @@ class Register{
       uint8_t m_val;
 };
 
-const uint8_t carry_mask = 0b00010000;
-const uint8_t half_carry_mask = 0b00100000;
-const uint8_t subtract_mask = 0b01000000;
-const uint8_t zero_mask = 0b10000000;
 
 class FlagRegister : public Register {
   public:

@@ -5,30 +5,38 @@
 
 class SerialPort {
 public:
-  SerialPort(){};
+  SerialPort(std::ostream *out = NULL): serial(out){};
   ~SerialPort(){};
+  void setControl(const uint8_t data) {};
+  uint8_t getControl() { return 0; };
   uint8_t read() { return 0; };
-  void write(const uint8_t data) { std::cout << data; }
+  void write(const uint8_t data) { *serial << char(data); }
+private:
+  std::ostream* serial;
 };
 
 class MMU {
 public:
-  MMU(CartridgeMemory *cart_memory) : m_cartridge(cart_memory), m_serialPort(), boot_mode(1){};
+  MMU(CartridgeMemory *cart_memory) : m_cartridge(cart_memory), m_serialPort(&std::cout){
+    *boot = 1;
+  };
   ~MMU(){};
   uint8_t read8bit(const uint16_t address);
   uint16_t read16bit(const uint16_t address);
 
   void write(const uint16_t address, const uint8_t data);
   void write(const uint16_t address, const uint16_t data);
-  void setBootMode(bool mode) { boot_mode = mode; };
 
 private:
-  bool boot_mode;
   CartridgeMemory *m_cartridge;
   SerialPort m_serialPort;
   uint8_t hram[127];
   uint8_t io[127];
   uint8_t vram[0x1FFF];
+  uint8_t wram[0x2000];
+  uint8_t echo[0x2000];
+  uint8_t *boot = &io[0x4D];
+  uint8_t ie;
 };
 
 class MemRef {

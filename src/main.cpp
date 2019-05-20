@@ -8,9 +8,9 @@
 #include "MMU/Cartridge.h"
 #include "PPU/PPU.h"
 
-Cartridge game_cart = Cartridge("../gb-test-roms/cpu_instrs/individual/01-special.gb");
+Cartridge game_cart = Cartridge("../gb-test-roms/cpu_instrs/individual/06-ld r,r.gb");
 MMU memory_manager = MMU(game_cart.getMemoryController());
-CPU test_cpu = CPU(memory_manager, &std::cout);
+CPU test_cpu = CPU(memory_manager, NULL); //&std::cout);
 PPU test_ppu = PPU(memory_manager);
 
 void onExit(int sigNum) {
@@ -26,22 +26,20 @@ int main(int argc, char** argv){
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
 
-
   //fake stuff for retro_init?
-  //object creation etc....
 
   //fake stuff for retro_load_game()
+  //std::cout << game_cart.getCartHeader().getTypeStr() << std::endl;
 
   // retro_run()
-  while(1) {
+  while(1) { //abstract this into GB::executeSingle()
     unsigned saved_pc = test_cpu.PC;
-    OpCode op = test_cpu.readOp();
-    uint32_t clocks = test_cpu.execute_op(op);
+    uint32_t clocks = test_cpu.executeInstruction();
+    test_cpu.processInterrupts();
     test_ppu.update(clocks);
-    std::cout << std::endl;
-    if(test_cpu.PC == 0x100 || test_cpu.PC > 0x1000) {
-      assert(0);
-    }
+    // test_cpu.debugState();
+    // std::cout << std::endl;
+    // if(test_cpu.PC == 0xcfe7) { assert(0); }
   }
 
   std::cout << std::endl;

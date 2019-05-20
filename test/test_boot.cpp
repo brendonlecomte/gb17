@@ -44,16 +44,15 @@ protected:
 TEST_F(BootTest, run_boot_rom) {
   while(1) {
     unsigned saved_pc = test_cpu.PC;
-    OpCode op = test_cpu.readOp();
-    uint32_t clocks = test_cpu.execute_op(op);
-    test_ppu.update(clocks);
+    uint32_t clocks = test_cpu.executeInstruction();
+    test_ppu.update(clocks); //need to fake ppu for LY
     if(test_cpu.PC == 0x100 || test_cpu.PC > 0x1000) {
       break;
     }
   }
   EXPECT_EQ(0x0100,   (uint16_t)test_cpu.PC);
   EXPECT_EQ(0xFFFE,  (uint16_t)test_cpu.SP);
-  EXPECT_EQ(0x0100,  (uint16_t)test_cpu.AF);
+  EXPECT_EQ(0x01B0,  (uint16_t)test_cpu.AF);
   EXPECT_EQ(0x0013,  (uint16_t)test_cpu.BC);
   EXPECT_EQ(0x00D8,  (uint16_t)test_cpu.DE);
   EXPECT_EQ(0x014D,  (uint16_t)test_cpu.HL);

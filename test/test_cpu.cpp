@@ -252,7 +252,7 @@ TEST_F(CpuTest, call_n) {
   m_cpu.callN(0xABCD);
   EXPECT_EQ(0xFFFC, m_cpu.SP);
   EXPECT_EQ(0xABCD, m_cpu.PC);
-  EXPECT_EQ(0x1234, m_cpu.stack_pop());
+  EXPECT_EQ(0x1234, m_cpu.stackPop());
 }
 
 TEST_F(CpuTest, ccf) {
@@ -481,7 +481,7 @@ TEST_F(CpuTest, rst) {
 
   m_cpu.rst(x);
   EXPECT_EQ(00, m_cpu.PC);
-  EXPECT_EQ(0xAA55, m_cpu.stack_pop());
+  EXPECT_EQ(0xAA55, m_cpu.stackPop());
 }
 
 TEST_F(CpuTest, or_a) {
@@ -498,16 +498,16 @@ TEST_F(CpuTest, or_a) {
 TEST_F(CpuTest, pop) {
   uint16_t x = 0x1234;
   EXPECT_EQ(0xFFFE, m_cpu.SP);
-  m_cpu.stack_push(x);
+  m_cpu.stackPush(x);
   EXPECT_EQ(0xFFFC, m_cpu.SP);
-  EXPECT_EQ(0x1234, m_cpu.stack_pop());
+  EXPECT_EQ(0x1234, m_cpu.stackPop());
 }
 
 TEST_F(CpuTest, push) {
   EXPECT_EQ(0xFFFE, m_cpu.SP);
-  m_cpu.stack_push(0xABCD);
+  m_cpu.stackPush(0xABCD);
   EXPECT_EQ(0xFFFC, m_cpu.SP);
-  EXPECT_EQ(0xABCD, m_cpu.stack_pop());
+  EXPECT_EQ(0xABCD, m_cpu.stackPop());
   EXPECT_EQ(0xFFFE, m_cpu.SP);
 
 }
@@ -525,7 +525,7 @@ TEST_F(CpuTest, res) {
 
 TEST_F(CpuTest, ret) {
   m_cpu.PC = 0xAAAA;
-  m_cpu.stack_push(0x1234);
+  m_cpu.stackPush(0x1234);
   m_cpu.ret();
   EXPECT_EQ(0x1234, m_cpu.PC);
 }

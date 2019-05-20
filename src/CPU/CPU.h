@@ -18,6 +18,11 @@ class CPU {
     uint16_t SP;
     uint16_t PC;
     MemRef m_mem;
+    MemRef int_enable;
+    MemRef int_flags;
+    bool halted;
+    bool int_master_enable;
+    OpCode op;
 
     ALU alu;
     MMU &memory;
@@ -25,16 +30,23 @@ class CPU {
     std::ostream *debug;
 
     void coreDump(void);
+    void debugState(void);
 
-    uint8_t execute_op(OpCode op);
-    uint8_t execute_op_cb(uint8_t prefix_cb);
-    void stack_push(const uint16_t value);
-    uint16_t stack_pop(void);
+    uint8_t executeInstruction(void);
+    uint8_t processInterrupts(void);
+
+//private:
+    uint8_t executeOp(OpCode op);
+    uint8_t executeOpCb(uint8_t prefix_cb);
+    uint8_t vectorInterrupt(uint16_t address);
+    void stackPush(const uint16_t value);
+    uint16_t stackPop(void);
+
 
     OpCode readOp(void);
-    int8_t read_r8(void);
-    uint8_t read_d8(void);
-    uint16_t read_d16(void);
+    int8_t readR8(void);
+    uint8_t readD8(void);
+    uint16_t readD16(void);
     MemRef& mem(const uint16_t address);
 
     void adc(Register &reg, const uint8_t n);
@@ -78,8 +90,7 @@ class CPU {
     void pop(RegisterPair &reg);
     void push(RegisterPair &reg);
     void res(Register &reg, const uint8_t b);
-        void ret(void);
-
+    void ret(void);
     void rl(Register &reg);
     void rlc(Register &reg);
     void rr(Register &reg);

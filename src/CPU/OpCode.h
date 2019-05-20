@@ -110,8 +110,8 @@ enum class OpCode : uint8_t {
   LD_SP_d16,
   LD_HLs_A,
   INC_SP,
-  INC_aHL,
-  DEC_aHL,
+  INC_mHL,
+  DEC_mHL,
   LD_mHL_d8,
   SCF,
   JR_C_r8,
@@ -422,10 +422,10 @@ static std::string opToString(OpCode op) {
         return "LD_HLs_A";
       case OpCode::INC_SP:
         return "INC_SP";
-      case OpCode::INC_aHL:
-        return "INC_aHL";
-      case OpCode::DEC_aHL:
-        return "DEC_aHL";
+      case OpCode::INC_mHL:
+        return "INC_mHL";
+      case OpCode::DEC_mHL:
+        return "DEC_mHL";
       case OpCode::LD_mHL_d8:
         return "LD_mHL_d8";
       case OpCode::SCF:
