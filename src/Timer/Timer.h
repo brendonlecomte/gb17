@@ -42,15 +42,14 @@ public:
       prev_inc_bit = inc_bit;
 
       if((uint8_t)tima == 0xFF) {
+        int_flags = (uint8_t)((uint8_t)int_flags | 0x02);
         tima = (uint8_t)tma;
       }
     }
   };
 
-  uint16_t internal_div;
-
 private:
-  uint32_t count;
+  uint16_t internal_div;
   bool prev_inc_bit;
   MemRef div, tima, tma, tac, int_flags;
   const uint16_t clock_select[4] = {0x200, 0x08, 0x20, 0x80};
