@@ -1,5 +1,6 @@
 #include "CPU.h"
 #include <assert.h>
+#include  <iomanip>
 
 static const uint8_t Joypad = 0x10;
 static const uint8_t Serial = 0x08;
@@ -21,17 +22,26 @@ CPU::CPU(MMU &mmu, std::ostream *out)
 CPU::~CPU() {}
 
 void CPU::debugState(void) {
-  std::cout << "OP: 0x" << std::hex << unsigned(op) << std::endl;
+  std::cout << "OP:0x" << std::setfill('0') << std::setw(4) <<std::hex << unsigned(op) << " ";
   coreDump();
 }
 
+void CPU::setState(uint16_t pc, uint16_t sp, uint16_t af, uint16_t bc, uint16_t de, uint16_t hl) {
+  PC = pc;
+  SP = sp;
+  AF = af;
+  BC = bc;
+  DE = de;
+  HL = hl;
+}
+
 void CPU::coreDump(void) {
-  std::cout << "PC: 0x" << std::hex << PC << std::endl;
-  std::cout << "SP: 0x" << std::hex << SP << std::endl;
-  std::cout << "AF: 0x" << std::hex << unsigned(AF) << std::endl;
-  std::cout << "BC: 0x" << std::hex << unsigned(BC) << std::endl;
-  std::cout << "DE: 0x" << std::hex << unsigned(DE) << std::endl;
-  std::cout << "HL: 0x" << std::hex << unsigned(HL) << std::endl;
+  std::cout << "PC:0x" << std::setfill('0') << std::setw(4) << std::hex << PC << " ";
+  std::cout << "SP:0x" << std::setfill('0') << std::setw(4) << std::hex << SP << " ";
+  std::cout << "AF:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(AF) << " ";
+  std::cout << "BC:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(BC) << " ";
+  std::cout << "DE:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(DE) << " ";
+  std::cout << "HL:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(HL) << std::endl;
 }
 
 void CPU::stackPush(const uint16_t value) {
@@ -51,7 +61,9 @@ OpCode CPU::readOp(void) {
   uint16_t stored_pc = PC;
   PC++;
   op = (OpCode)memory.read8bit(stored_pc);
-  if(debug) *debug << "0x" <<std::hex << stored_pc << ": " << opToString(op) << " ";
+
+  if(debug) *debug << "0x" <<std::hex << PC << ": " << opToString(op) << "(" << std::hex << unsigned(op) << ")"<< " ";
+  if(stored_pc == 0x20A) assert(0);
   return op;
 }
 
@@ -113,7 +125,9 @@ uint8_t CPU::executeInstruction(void) {
     return 0;
   }
   OpCode op = readOp();
-  return executeOp(op);
+  auto cycles = executeOp(op);
+  if(debug) *debug << std::endl;
+  return cycles;
 }
 
 uint8_t CPU::executeOp(OpCode op){
@@ -165,6 +179,7 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::RRCA:
       rrc(A);
+      F.clear_zero();
       break;
     case OpCode::STOP:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -213,6 +228,7 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::RRA:
       rr(A);
+      F.clear_zero();
       break;
     case OpCode::JR_NZ_r8:
       if(F.zero()) {
@@ -241,7 +257,7 @@ uint8_t CPU::executeOp(OpCode op){
       load(H, readD8());
       break;
     case OpCode::DAA:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      daa();
       break;
     case OpCode::JR_Z_r8:
       if(!F.zero()) {
@@ -310,10 +326,14 @@ uint8_t CPU::executeOp(OpCode op){
       scf();
       break;
     case OpCode::JR_C_r8:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(!F.carry()) {
+        PC += 1;
+        return 2;
+      }
+      jr(readR8());
       break;
     case OpCode::ADD_HL_SP:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      add(HL, SP);
       break;
     case OpCode::LD_A_HLs:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -554,97 +574,97 @@ uint8_t CPU::executeOp(OpCode op){
       adc(A, B);
       break;
     case OpCode::ADC_A_C:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, C);
       break;
     case OpCode::ADC_A_D:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, D);
       break;
     case OpCode::ADC_A_E:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, E);
       break;
     case OpCode::ADC_A_H:
       adc(A, H);
       break;
     case OpCode::ADC_A_L:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, L);
       break;
     case OpCode::ADC_A_HLm:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, mem(HL));
       break;
     case OpCode::ADC_A_A:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      adc(A, A);
       break;
     case OpCode::SUB_B:
       sub(A, B);
       break;
     case OpCode::SUB_C:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, C);
       break;
     case OpCode::SUB_D:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, D);
       break;
     case OpCode::SUB_E:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, E);
       break;
     case OpCode::SUB_H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, H);
       break;
     case OpCode::SUB_L:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, L);
       break;
     case OpCode::SUB_HLm:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, mem(HL));
       break;
     case OpCode::SUB_A:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sub(A, A);
       break;
     case OpCode::SBC_A_B:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, B);
       break;
     case OpCode::SBC_A_C:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, C);
       break;
     case OpCode::SBC_A_D:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, D);
       break;
     case OpCode::SBC_A_E:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, E);
       break;
     case OpCode::SBC_A_H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, H);
       break;
     case OpCode::SBC_A_L:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, L);
       break;
     case OpCode::SBC_A_HLm:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, mem(HL));
       break;
     case OpCode::SBC_A_A:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, A);
       break;
     case OpCode::AND_B:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, B);
       break;
     case OpCode::AND_C:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, C);
       break;
     case OpCode::AND_D:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, D);
       break;
     case OpCode::AND_E:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, E);
       break;
     case OpCode::AND_H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, H);
       break;
     case OpCode::AND_L:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, L);
       break;
     case OpCode::AND_HLm:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, mem(HL));
       break;
     case OpCode::AND_A:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      andReg(A, A);
       break;
     case OpCode::XOR_B:
       xorReg(A, B);
@@ -728,13 +748,17 @@ uint8_t CPU::executeOp(OpCode op){
       BC = stackPop();
       break;
     case OpCode::JP_NZ_a16:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(F.zero()) {
+        PC += 2;
+        return 2;
+      }
+      jp(readD16());
       break;
     case OpCode::JP_a16:
       jp(readD16());
       break;
     case OpCode::CALL_NZ_a16:
-      if(!F.zero()) {
+      if(F.zero()) {
         PC += 2;
         return 2;
       }
@@ -747,7 +771,7 @@ uint8_t CPU::executeOp(OpCode op){
       add(A, readD8());
       break;
     case OpCode::RST_00H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x00);
       break;
     case OpCode::RET_Z:
       if(!F.zero())
@@ -760,8 +784,11 @@ uint8_t CPU::executeOp(OpCode op){
       ret();
       break;
     case OpCode::JP_Z_a16:
-
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(!F.zero()) {
+        PC += 2;
+        return 2;
+      }
+      jp(readD16());
       break;
     case OpCode::PREFIX_CB:
       return OpCode_cycles[(uint8_t)op] + executeOpCb(readD8());
@@ -779,7 +806,7 @@ uint8_t CPU::executeOp(OpCode op){
       adc(A, readD8());
       break;
     case OpCode::RST_08H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x08);
       break;
     case OpCode::RET_NC:
       if(F.carry()) {
@@ -791,7 +818,11 @@ uint8_t CPU::executeOp(OpCode op){
       DE = stackPop();
       break;
     case OpCode::JP_NC_a16:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(F.carry()) {
+        PC += 2;
+        return 2;
+      }
+      jp(readD16());
       break;
     case OpCode::ILLEGAL_INSTRUCTION_1:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -806,17 +837,23 @@ uint8_t CPU::executeOp(OpCode op){
       sub(A, readD8());
       break;
     case OpCode::RST_10H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x10);
       break;
     case OpCode::RET_C:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(!F.carry())
+        return 2;
+      ret();
       break;
     case OpCode::RETI:
       int_master_enable = 1;
       ret();
       break;
     case OpCode::JP_C_a16:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(!F.carry()) {
+        PC += 2;
+        return 2;
+      }
+      jp(readD16());
       break;
     case OpCode::ILLEGAL_INSTRUCTION2:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -835,7 +872,7 @@ uint8_t CPU::executeOp(OpCode op){
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::RST_18H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x18);
       break;
     case OpCode::LDH_a8_A:
       load(mem(0xFF00 + readD8()), A);
@@ -859,13 +896,13 @@ uint8_t CPU::executeOp(OpCode op){
       andReg(A, readD8());
       break;
     case OpCode::RST_20H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x20);
       break;
     case OpCode::ADD_SP_r8:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      addSigned(SP, readR8());
       break;
     case OpCode::JP_HLm:
-      jp(mem(HL));
+      jp(HL); //HLm is a lie!!!
       break;
     case OpCode::LD_a16_A:
       load(mem(readD16()), A);
@@ -883,16 +920,16 @@ uint8_t CPU::executeOp(OpCode op){
       xorReg(A, readD8());
       break;
     case OpCode::RST_28H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x28);
       break;
     case OpCode::LDH_A_a8:
       load(A, mem(0xFF00 + readD8()));
       break;
     case OpCode::POP_AF:
-      AF = stackPop();
+      AF = stackPop() & 0xFFF0;
       break;
     case OpCode::LD_A_Cm:
-      load(A, 0xFF00 + C);
+      load(A, 0xFF00 + (uint8_t)C);
       break;
     case OpCode::DI:
       int_enable = (uint8_t)0;
@@ -907,7 +944,7 @@ uint8_t CPU::executeOp(OpCode op){
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::RST_30H:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x30);
       break;
     case OpCode::LD_HL_SPr8:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -931,7 +968,7 @@ uint8_t CPU::executeOp(OpCode op){
       cp(A, readD8());
       break;
     case OpCode::RST_38:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      rst(0x38);
       break;
     default:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);

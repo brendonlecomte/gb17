@@ -106,6 +106,8 @@ void CPU::andReg(Register &reg, const uint8_t n) {
   reg = reg & n;
   if (reg.value() == 0) {
     F.set_zero();
+  } else {
+    F.clear_zero();
   }
   F.clear_subtract();
   F.set_half_carry();

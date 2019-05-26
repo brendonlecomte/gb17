@@ -18,7 +18,7 @@ private:
 class MMU {
 public:
   MMU(CartridgeMemory *cart_memory) : m_cartridge(cart_memory), m_serialPort(&std::cout){
-    *boot = 1;
+    *boot = 0;
   };
   ~MMU(){};
   uint8_t read8bit(const uint16_t address);
@@ -30,8 +30,8 @@ public:
 private:
   CartridgeMemory *m_cartridge;
   SerialPort m_serialPort;
-  uint8_t hram[127];
-  uint8_t io[127];
+  uint8_t hram[0x7F];
+  uint8_t io[0x7F];
   uint8_t vram[0x1FFF];
   uint8_t wram[0x2000];
   uint8_t echo[0x2000];

@@ -17,7 +17,7 @@ CartridgeMemory* Create(CartType type, std::vector<uint8_t> &loaded_rom) {
 }
 
 Cartridge::Cartridge(const char* filename) {
-  std::ifstream file(filename, std::ios::binary);
+  std::ifstream file(filename, std::ifstream::in);
 
   //ensure file exists
   if(!file) {
@@ -50,7 +50,8 @@ void MBC1::write(const uint16_t addr, const uint8_t data) {
   switch(addr) {
     case 0x0000 ... 0x1FFF: //- RAM Enable (Write Only)
     {
-      assert(0);
+      if(data == 0x0A) ram_enabled = 1;
+      else if(data == 0x00) ram_enabled = 0;
       break;
     }
     case 0x2000 ... 0x3FFF: //- ROM Bank Number (Write Only)
@@ -84,7 +85,7 @@ uint8_t MBC1::read(const uint16_t addr) {
     }
     case 0x4000 ... 0x7FFF: // ROM Bank 01-7F (Read Only)
     {
-      return rom[addr]; //TODO Fix this with banking
+      return rom[(addr & (~0x4000)) + (rom_bank * 0x4000)]; //TODO Fix this with banking
       break;
     }
     case 0xA000 ... 0xBFFF: // RAM Bank 00-03, if any (Read/Write)

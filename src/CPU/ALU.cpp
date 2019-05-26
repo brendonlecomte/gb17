@@ -39,26 +39,53 @@ uint16_t ALU::add(const uint16_t a, const uint16_t b, const uint8_t carry) {
 
 uint8_t ALU::sub(const uint8_t a, const uint8_t b) {
   uint16_t temp = a - b;
-  uint8_t hc_temp = (a & 0x0F) - (b & 0x0F);
+  uint8_t hc_temp = (a & 0x0F) < (b & 0x0F);
   uint8_t result = (uint8_t)temp & 0xFF;
-  if(hc_temp  > 0) {
+  if(hc_temp) {
     m_flags.set_half_carry();
+  } else {
+    m_flags.clear_half_carry();
   }
+
   if(b > a) {
     m_flags.set_carry();
+  } else {
+    m_flags.clear_carry();
   }
+
+  m_flags.set_subtract();
+
+  if(result == 0){
+    m_flags.set_zero();
+  } else {
+    m_flags.clear_zero();
+  }
+
   return result;
 }
 
 uint16_t ALU::sub(const uint16_t a, const uint16_t b) {
   uint32_t temp = a - b;
-  uint16_t hc_temp = (a & 0x0FFF) - (b & 0x0FFF);
+  uint16_t hc_temp = (a & 0x0FFF) < (b & 0x0FFF);
   uint16_t result = temp&0xFFFF;
-  if(hc_temp > 0) {
+  if(hc_temp) {
     m_flags.set_half_carry();
+  } else {
+    m_flags.clear_half_carry();
   }
+
   if(b > a) {
     m_flags.set_carry();
+  } else {
+    m_flags.clear_carry();
+  }
+
+  m_flags.set_subtract();
+
+  if(result == 0){
+    m_flags.set_zero();
+  } else {
+    m_flags.clear_zero();
   }
   return result;
 }

@@ -23,8 +23,8 @@ private:
 class MBC1 : public CartridgeMemory {
 public:
   MBC1(std::vector<uint8_t> &loaded_rom) : rom(loaded_rom),
-                                           ram_bank(0),
-                                           rom_bank(0),
+                                           ram_bank(1),
+                                           rom_bank(1),
                                            mem_mode_select(0),
                                            ram_enabled(0) {};
   uint8_t read(const uint16_t addr);

@@ -5,7 +5,7 @@
 uint8_t MMU::read8bit(const uint16_t address) {
   switch (address) {
     case 0x0000 ... 0x7FFF:
-      if(*boot && address < 0x100) {
+      if(*boot == 0 && address < 0x100) {
         return bootDMG[address];
       }
       // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
@@ -49,14 +49,11 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFF03 ... 0xFF7F:
       // I/O Ports
-      return io[((uint8_t)address & (~0xFF03))];
+      return io[((uint8_t)address & (~0xFF00))];
       break;
-    case 0xFF80 ... 0xFFFE:
+    case 0xFF80 ... 0xFFFF:
       // High RAM (HRAM)
       return hram[((uint8_t)address & (~0xFF80))];
-    case 0xFFFF:
-      return ie;
-      break;
     default:
 
       break;
@@ -113,20 +110,17 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xFF03 ... 0xFF7F:
     {
       // I/O Ports
-      uint8_t io_address = ((uint8_t)address & (~0xFF80));
+      uint8_t io_address = ((uint8_t)address & (~0xFF00));
       io[io_address] = data;
       break;
     }
-    case 0xFF80 ... 0xFFFE:
+    case 0xFF80 ... 0xFFFF:
     {
       // High RAM (HRAM)
       uint8_t hram_address = ((uint8_t)address & (~0xFF80));
       hram[hram_address] = data;
       break;
     }
-    case 0xFFFF:
-      ie = data;
-      break;
     default:
       m_cartridge->write(address, data);
       break;
