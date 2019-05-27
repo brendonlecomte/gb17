@@ -1,5 +1,6 @@
 #pragma once
 #include "../MMU/MMU.h"
+#include "../CPU/CPU.h"
 
 #define OAM_CLOCKS          (80 /4)
 #define TRANSFER_CLOCKS     (172 /4)
@@ -11,11 +12,17 @@
 
 class PPU {
 public:
-  PPU(MMU& memory) : clock_count(0), current_line(0), state(0), mmu(memory), LY(memory, 0xFF44) {};
+  PPU(MMU& memory, Interrupts &ints) : clock_count(0),
+                                       current_line(0),
+                                       state(0),
+                                       mmu(memory),
+                                       LY(memory, 0xFF44),
+                                       flags(ints) {};
   ~PPU() {};
 
   void set(uint8_t x) { LY = (uint8_t)x; };
-  uint8_t get(void) {return (uint8_t)LY;};
+  
+  uint8_t get(void) { return (uint8_t)LY; };
 
   void update(uint32_t clocks) {
     clock_count += clocks;
@@ -34,6 +41,7 @@ private:
   void transfer(void);
   void hblank(void);
   MMU& mmu;
+  Interrupts &flags;
   MemRef LY;
 
   uint8_t current_line;

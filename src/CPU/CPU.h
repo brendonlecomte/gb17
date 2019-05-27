@@ -1,5 +1,6 @@
 #pragma once
 #include "../MMU/MMU.h"
+#include "Interrupts.h"
 #include "ALU.h"
 #include "OpCode.h"
 #include "register.h"
@@ -7,7 +8,7 @@
 
 class CPU {
 public:
-  CPU(MMU &mmu, std::ostream *out);
+  CPU(MMU &mmu, Interrupts &ints, std::ostream *out);
 
   ~CPU();
 
@@ -18,11 +19,9 @@ public:
   uint16_t SP;
   uint16_t PC;
   MemRef m_mem;
-  MemRef int_enable;
-  MemRef int_flags;
   bool halted;
-  bool int_master_enable;
   OpCode op;
+  Interrupts &flags;
 
   ALU alu;
   MMU &memory;

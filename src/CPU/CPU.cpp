@@ -8,13 +8,12 @@ static const uint8_t Timer = 0x04;
 static const uint8_t LCDStat = 0x02;
 static const uint8_t VBlank = 0x01;
 
-CPU::CPU(MMU &mmu, std::ostream *out)
+CPU::CPU(MMU &mmu, Interrupts &ints, std::ostream *out)
     : A(1), F(), B(), C(), D(), E(), H(), L(),
       AF(A, F), BC(B, C), DE(D, E), HL(H, L),
       SP(0x0000), PC(0x000),
       alu(F), memory(mmu),
-      m_mem(mmu, 0),
-      int_enable(mmu, 0xFFFF), int_flags(mmu, 0xFF0F), int_master_enable(0),
+      m_mem(mmu, 0), flags(ints),
       halted(0),
       debug(out)
 {}
@@ -99,22 +98,13 @@ MemRef& CPU::mem(const uint16_t address) {
 }
 
 uint8_t CPU::processInterrupts(void) {
-  if((uint8_t)int_flags == 0 && halted) halted = 0;
-
-  if(!int_master_enable) return 0;
-
-  uint8_t valid_ints = (uint8_t)int_flags & (uint8_t)int_enable;
-  if(valid_ints & Joypad) { return vectorInterrupt(0x0060); }
-  if(valid_ints & Serial) { return vectorInterrupt(0x0058); }
-  if(valid_ints & Timer)  { return vectorInterrupt(0x0050); }
-  if(valid_ints & LCDStat){ return vectorInterrupt(0x0048); }
-  if(valid_ints & VBlank) { return vectorInterrupt(0x0040); }
-
+  // TODO: interrupt handling using Interrupt class
   return 0;
 }
 
 uint8_t CPU::vectorInterrupt(uint16_t address) {
-  int_master_enable = 0;
+  // int_master_enable = 0;
+  // TODO: flags.disableInterrupts();
   stackPush(PC);
   jp(address);
   return 5;
@@ -845,7 +835,7 @@ uint8_t CPU::executeOp(OpCode op){
       ret();
       break;
     case OpCode::RETI:
-      int_master_enable = 1;
+      // int_master_enable = 1;
       ret();
       break;
     case OpCode::JP_C_a16:
@@ -932,7 +922,7 @@ uint8_t CPU::executeOp(OpCode op){
       load(A, 0xFF00 + (uint8_t)C);
       break;
     case OpCode::DI:
-      int_enable = (uint8_t)0;
+      // int_enable = (uint8_t)0;
       break;
     case OpCode::ILLEGAL_INSTRUCTION9:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -956,7 +946,7 @@ uint8_t CPU::executeOp(OpCode op){
       load(A, mem(readD16()));
       break;
     case OpCode::EI:
-      int_enable = (uint8_t)1;
+      // int_enable = (uint8_t)1;
       break;
     case OpCode::ILLEGAL_INSTRUCTION10:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);

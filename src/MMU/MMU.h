@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
-
 #include "Cartridge.h"
+#include "../CPU/Interrupts.h"
 
 class SerialPort {
 public:
@@ -17,7 +17,7 @@ private:
 
 class MMU {
 public:
-  MMU(CartridgeMemory *cart_memory) : m_cartridge(cart_memory), m_serialPort(&std::cout){
+  MMU(CartridgeMemory *cart_memory, Interrupts &flags) : m_cartridge(cart_memory), m_flags(flags), m_serialPort(&std::cout){
     *boot = 0;
   };
   ~MMU(){};
@@ -28,6 +28,7 @@ public:
   void write(const uint16_t address, const uint16_t data);
 
 private:
+  Interrupts &m_flags;
   CartridgeMemory *m_cartridge;
   SerialPort m_serialPort;
   uint8_t hram[0x7F];
@@ -51,4 +52,5 @@ public:
 private:
   uint16_t addr;
   MMU &mem;
+
 };

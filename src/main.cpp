@@ -22,10 +22,11 @@
 int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
   Cartridge game_cart = Cartridge(argv[1]);
-  MMU memory_manager = MMU(game_cart.getMemoryController());
-  CPU test_cpu = CPU(memory_manager, NULL); //&std::cout);
-  PPU test_ppu = PPU(memory_manager);
-  Timer test_timer = Timer(memory_manager);
+  Interrupts test_interrupts = Interrupts();
+  MMU memory_manager = MMU(game_cart.getMemoryController(), test_interrupts);
+  CPU test_cpu = CPU(memory_manager, test_interrupts, NULL); //&std::cout);
+  PPU test_ppu = PPU(memory_manager, test_interrupts);
+  Timer test_timer = Timer(test_interrupts);
 
   //test specifif stuff
   // signal (SIGINT, onExit); //dump core on exit for debugging

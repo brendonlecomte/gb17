@@ -104,9 +104,6 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       // Serial Data
       m_serialPort.write(data);
       break;
-    case 0xFF02: // Serial Control ...
-      m_serialPort.setControl(data);
-      break;
     case 0xFF03 ... 0xFF7F:
     {
       // I/O Ports

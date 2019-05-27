@@ -8,6 +8,7 @@ C++17 learning exercise and Gameboy Emulator
 - [x] Bootloader runs to completion. With test!
 - [ ] Interrupts
 - [ ] Timers
+  - write to div doesn't reset internal_div
 - [ ] Passing Blaarg CPU instruction tests. Automated test.
 - [ ] Fix TODOs.
 - [ ] Check Branching Cycle counts

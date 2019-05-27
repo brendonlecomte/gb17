@@ -66,9 +66,10 @@ bool compareStates(cpu_state &state, CPU &cpu){
 int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
   Cartridge game_cart = Cartridge(argv[1]);
-  MMU memory_manager = MMU(game_cart.getMemoryController());
-  CPU test_cpu = CPU(memory_manager, &std::cout);
-  PPU test_ppu = PPU(memory_manager);
+  Interrupts int_flags = Interrupts();
+  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags);
+  CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
+  PPU test_ppu = PPU(memory_manager, int_flags);
 
 
   //skip the boot loader

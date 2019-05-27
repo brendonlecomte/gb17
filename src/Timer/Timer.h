@@ -1,14 +1,13 @@
-#include "../MMU/MMU.h"
+#include "../CPU/CPU.h"
 
 class Timer {
 public:
-  Timer(MMU &memory) : div(memory, 0xFF04),
-                       tima(memory, 0xFF05),
-                       tma(memory, 0xFF06),
-                       tac(memory, 0xFF07),
-                       int_flags(memory, 0xFF0F),
+  Timer(Interrupts &ints) : tima(0),
+                       tma(0),
+                       tac(0),
                        internal_div(0),
-                       prev_inc_bit(0)
+                       prev_inc_bit(0),
+                       flags(ints)
                        {};
   ~Timer() {};
 
@@ -22,7 +21,6 @@ public:
   void tick(void) {
     //INC div at 4MHz
     internal_div = internal_div + 1;
-    div = (uint8_t)(internal_div>>8); //div is the top half of internal div
     if(internal_div == 0xFFFF) {
       internal_div = 0;
     }
@@ -42,15 +40,35 @@ public:
       prev_inc_bit = inc_bit;
 
       if((uint8_t)tima == 0xFF) {
-        int_flags = (uint8_t)((uint8_t)int_flags | 0x02);
+        flags.setInterrupt(Interrupt::Timer);
         tima = (uint8_t)tma;
       }
     }
-  };
+  }
+
+  void setTac(uint8_t val) { tac = val;}
+  uint8_t getTac() { return tac;}
+
+  void setDiv(void) { internal_div = 0;}
+  uint8_t getDiv() { return internal_div>>8; }
+
+  void setTma(uint8_t val) { tma = val;}
+  uint8_t getTma() { return tma;}
+
+  void setTima(uint8_t val) { tima = val; }
+  uint8_t getTima() { return tima;}
+
+  void reset(void) {
+    internal_div =0;
+    tima =0;
+    tac =0;
+    tma =0;
+  }
 
 private:
   uint16_t internal_div;
   bool prev_inc_bit;
-  MemRef div, tima, tma, tac, int_flags;
+  uint8_t tima, tma, tac;
+  Interrupts &flags;
   const uint16_t clock_select[4] = {0x200, 0x08, 0x20, 0x80};
 };
