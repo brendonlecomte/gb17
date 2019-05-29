@@ -31,4 +31,4 @@ set(test_source "src/blaargh.cpp"
                  ${shared_sources})
 
 add_executable(test-rom ${test_source})
-add_test(NAME Special COMMAND test-rom gb-test-roms/cpu-instrs/individual/01-special.gb)
+add_test(NAME Special COMMAND test-rom  ../gb-test-roms/cpu-instrs/individual/01-special.gb)
