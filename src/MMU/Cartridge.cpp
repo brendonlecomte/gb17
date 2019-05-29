@@ -90,7 +90,6 @@ uint8_t MBC1::read(const uint16_t addr) {
     }
     case 0xA000 ... 0xBFFF: // RAM Bank 00-03, if any (Read/Write)
     {
-      assert(0);
       break;
     }
   }

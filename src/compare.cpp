@@ -67,7 +67,8 @@ int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
   Cartridge game_cart = Cartridge(argv[1]);
   Interrupts int_flags = Interrupts();
-  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags);
+  Timer timer = Timer(int_flags);
+  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags, timer);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
   PPU test_ppu = PPU(memory_manager, int_flags);
 

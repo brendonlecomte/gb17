@@ -23,15 +23,21 @@ int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
   Cartridge game_cart = Cartridge(argv[1]);
   Interrupts test_interrupts = Interrupts();
-  MMU memory_manager = MMU(game_cart.getMemoryController(), test_interrupts);
-  CPU test_cpu = CPU(memory_manager, test_interrupts, NULL); //&std::cout);
-  PPU test_ppu = PPU(memory_manager, test_interrupts);
   Timer test_timer = Timer(test_interrupts);
+  MMU memory_manager = MMU(game_cart.getMemoryController(), test_interrupts, test_timer);
+  std::ostream *debug = NULL;
+  if(argc == 3)
+    debug = &std::cout;
+
+  CPU test_cpu = CPU(memory_manager, test_interrupts, debug);
+  PPU test_ppu = PPU(memory_manager, test_interrupts);
+
 
   //test specifif stuff
   // signal (SIGINT, onExit); //dump core on exit for debugging
   // signal (SIGABRT, onExit);
   uint8_t start_log = 0;
+  uint8_t x;
 
   //fake stuff for retro_init?
 
@@ -42,9 +48,15 @@ int main(int argc, char** argv){
   while(1) { //abstract this into GB::executeSingle()
     unsigned saved_pc = test_cpu.PC;
     uint32_t clocks = test_cpu.executeInstruction();
-    test_cpu.processInterrupts();
+    clocks += test_cpu.processInterrupts();
     test_ppu.update(clocks);
     test_timer.update(clocks);
+    if(test_cpu.op == OpCode::EI) {
+      start_log = 1;
+    }
+    if(start_log) {
+      std::cin >> x;
+    }
   }
 
   std::cout << std::endl;

@@ -99,22 +99,40 @@ MemRef& CPU::mem(const uint16_t address) {
 
 uint8_t CPU::processInterrupts(void) {
   // TODO: interrupt handling using Interrupt class
+  if(flags.getMasterEnable()) {
+    if(flags.checkInterrupt(Interrupt::Joypad)) {
+      return vectorInterrupt(InterruptAddr::Joypad);
+    }
+    if(flags.checkInterrupt(Interrupt::Serial)) {
+      return vectorInterrupt(InterruptAddr::Serial);
+    }
+    if(flags.checkInterrupt(Interrupt::Timer)) {
+      return vectorInterrupt(InterruptAddr::Timer);
+    }
+    if(flags.checkInterrupt(Interrupt::LCDStat)) {
+      return vectorInterrupt(InterruptAddr::LCDStat);
+    }
+    if(flags.checkInterrupt(Interrupt::VBlank)) {
+      return vectorInterrupt(InterruptAddr::VBlank);
+    }
+  }
+  flags.updateIntStatus();
   return 0;
 }
 
-uint8_t CPU::vectorInterrupt(uint16_t address) {
-  // int_master_enable = 0;
-  // TODO: flags.disableInterrupts();
+uint8_t CPU::vectorInterrupt(InterruptAddr address) {
+  flags.clearMasterEnable();
   stackPush(PC);
-  jp(address);
+  jp((uint16_t)address);
   return 5;
 }
 
 uint8_t CPU::executeInstruction(void) {
   if(halted) {
-    return 0;
+    op = OpCode::NOP;
+  } else {
+    op = readOp();
   }
-  OpCode op = readOp();
   auto cycles = executeOp(op);
   if(debug) *debug << std::endl;
   return cycles;
@@ -326,7 +344,8 @@ uint8_t CPU::executeOp(OpCode op){
       add(HL, SP);
       break;
     case OpCode::LD_A_HLs:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      load(A, mem(HL));
+      HL = HL - 1;
       break;
     case OpCode::DEC_SP:
       SP -= 1;
@@ -507,7 +526,6 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::HALT:
       halted = 1;
-      // std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::LD_HLm_A:
       load(mem(HL), A);
@@ -835,7 +853,7 @@ uint8_t CPU::executeOp(OpCode op){
       ret();
       break;
     case OpCode::RETI:
-      // int_master_enable = 1;
+      flags.setMasterEnable();
       ret();
       break;
     case OpCode::JP_C_a16:
@@ -859,7 +877,7 @@ uint8_t CPU::executeOp(OpCode op){
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::SBC_A_d8:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      sbc(A, readD8());
       break;
     case OpCode::RST_18H:
       rst(0x18);
@@ -922,7 +940,7 @@ uint8_t CPU::executeOp(OpCode op){
       load(A, 0xFF00 + (uint8_t)C);
       break;
     case OpCode::DI:
-      // int_enable = (uint8_t)0;
+      flags.clearMasterEnable();
       break;
     case OpCode::ILLEGAL_INSTRUCTION9:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
@@ -931,13 +949,17 @@ uint8_t CPU::executeOp(OpCode op){
       stackPush(AF);
       break;
     case OpCode::OR_d8:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      orReg(A, readD8());
       break;
     case OpCode::RST_30H:
       rst(0x30);
       break;
-    case OpCode::LD_HL_SPr8:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+    case OpCode::LD_HL_SPr8:{
+      uint16_t SP_old = SP;
+      addSigned(SP, readR8());
+      load(HL, SP);
+      SP = SP_old;
+      }
       break;
     case OpCode::LD_SP_HL:
       load(SP, HL);
@@ -946,7 +968,7 @@ uint8_t CPU::executeOp(OpCode op){
       load(A, mem(readD16()));
       break;
     case OpCode::EI:
-      // int_enable = (uint8_t)1;
+      flags.setMasterEnable();
       break;
     case OpCode::ILLEGAL_INSTRUCTION10:
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);

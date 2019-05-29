@@ -38,7 +38,7 @@ public:
   // private:
   uint8_t executeOp(OpCode op);
   uint8_t executeOpCb(uint8_t prefix_cb);
-  uint8_t vectorInterrupt(uint16_t address);
+  uint8_t vectorInterrupt(InterruptAddr address);
   void stackPush(const uint16_t value);
   uint16_t stackPop(void);
 

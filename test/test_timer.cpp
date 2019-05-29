@@ -87,22 +87,15 @@ TEST_F(TimerTest, Div1024IncEnabled) {
   EXPECT_EQ(test_timer.getTima(), count_4mhz / 1024);
 }
 
-// TEST_F(TimerTest, DivLoop) {
-//   const uint16_t counts = 16384;
-//   test_timer.tick(16384);
-//   EXPECT_EQ((uint8_t)div, 1);
-//   EXPECT_EQ((uint8_t)tima, 0);
-// }
-//
-// TEST_F(TimerTest, TimerEnabled) {
-//   uint8_t counts = 58;
-//   tac = (uint8_t)0x05; //enable tima
-//   for(uint8_t i = 0; i < counts; i++) {
-//     test_timer.tick(1);
-//   }
-//   EXPECT_EQ((uint8_t)div, 58);
-//   EXPECT_EQ((uint8_t)tima, 3);
-//   EXPECT_EQ((uint8_t)tac, 0x05);
-// }
+TEST_F(TimerTest, Div16Overflow) {
+  test_timer.setTac(0x04 | 0x01);
+  uint16_t count_4mhz = 4080;
+  for(uint16_t i = 0; i < count_4mhz/4; i++) {
+    test_timer.update(1);
+  }
+  EXPECT_EQ(test_timer.getDiv(), count_4mhz >> 8);
+  EXPECT_EQ(test_timer.getTima(), 0);
+  EXPECT_EQ(test_int.getInterrupts(), (uint8_t)Interrupt::Timer);
+}
 
 }
