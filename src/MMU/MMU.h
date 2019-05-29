@@ -8,8 +8,8 @@
 
 class MMU {
 public:
-  MMU(CartridgeMemory *cart_memory, Interrupts &flags, Timer &timer)
-      : m_cartridge(cart_memory), m_flags(flags), m_timer(timer), m_serialPort(&std::cout),
+  MMU(CartridgeMemory *cart_memory, Interrupts &flags, Timer &timer, SerialPort serial)
+      : m_cartridge(cart_memory), m_flags(flags), m_timer(timer), m_serialPort(serial),
         wram(0x1000, 2)
   {
     *boot = 0;

@@ -68,7 +68,8 @@ int main(int argc, char** argv){
   Cartridge game_cart = Cartridge(argv[1]);
   Interrupts int_flags = Interrupts();
   Timer timer = Timer(int_flags);
-  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags, timer);
+  SerialPort serial = SerialPort();
+  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags, timer, serial);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
   PPU test_ppu = PPU(memory_manager, int_flags);
 
@@ -80,7 +81,6 @@ int main(int argc, char** argv){
   std::ifstream file(argv[2], std::ios::binary);
 
   cpu_state state, post_state;
-
 
   int op, pc, sp, af, bc, de, hl;
   std::string pre_line;

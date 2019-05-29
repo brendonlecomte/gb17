@@ -13,8 +13,9 @@ protected:
   // is empty.
   Interrupts test_int = Interrupts();
   Timer timer = Timer(test_int);
+  SerialPort serial = SerialPort();
   Cartridge game_cart = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
-  MMU memory_manager = MMU(game_cart.getMemoryController(), test_int, timer);
+  MMU memory_manager = MMU(game_cart.getMemoryController(), test_int, timer, serial);
   CPU test_cpu = CPU(memory_manager, test_int, NULL);
   PPU test_ppu = PPU(memory_manager, test_int);
 

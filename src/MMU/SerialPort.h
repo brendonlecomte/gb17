@@ -9,7 +9,7 @@ public:
   void setControl(const uint8_t data){};
   uint8_t getControl() { return 0; };
   uint8_t read() { return 0; };
-  void write(const uint8_t data) { *serial << char(data); }
+  void write(const uint8_t data) { if(serial) *serial << char(data); }
 
 private:
   std::ostream *serial;

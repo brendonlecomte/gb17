@@ -24,7 +24,8 @@ int main(int argc, char** argv){
   Cartridge game_cart = Cartridge(argv[1]);
   Interrupts test_interrupts = Interrupts();
   Timer test_timer = Timer(test_interrupts);
-  MMU memory_manager = MMU(game_cart.getMemoryController(), test_interrupts, test_timer);
+  SerialPort test_serial = SerialPort();
+  MMU memory_manager = MMU(game_cart.getMemoryController(), test_interrupts, test_timer, test_serial);
   std::ostream *debug = NULL;
   if(argc == 3)
     debug = &std::cout;
