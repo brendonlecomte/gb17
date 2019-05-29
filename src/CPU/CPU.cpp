@@ -61,7 +61,7 @@ OpCode CPU::readOp(void) {
   PC++;
   op = (OpCode)memory.read8bit(stored_pc);
 
-  if(debug) *debug << "0x" <<std::hex << PC << ": " << opToString(op) << "(" << std::hex << unsigned(op) << ")"<< " ";
+  if(debug) *debug << "0x" <<std::hex << PC << ": " << opToString(op) << "(0x" << std::hex << unsigned(op) << ")"<< " ";
   if(stored_pc == 0x20A) assert(0);
   return op;
 }
@@ -86,7 +86,7 @@ uint16_t CPU::readD16(void) {
   uint16_t stored_pc = PC;
   PC += 2;
   uint16_t d16 = memory.read16bit(stored_pc);
-  if(debug) *debug << "0x" << std::hex << (+d16&0xFFFF);
+  if(debug) *debug << "0x" << std::hex << (+d16 & 0xFFFF);
   return d16;
 }
 
