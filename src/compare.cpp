@@ -16,7 +16,7 @@ typedef struct {
 
 void getState(std::string line, cpu_state *state) {
   auto found =std::sscanf (line.c_str(),
-          "OP:%x PC:%x SP:%x AF:%x BC:%x DE:%x HL:%x",
+          "OP:%hx PC:%hx SP:%hx AF:%hx BC:%hx DE:%hx HL:%hx",
           &state->op,
           &state->pc,
           &state->sp,
