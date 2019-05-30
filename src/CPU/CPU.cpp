@@ -164,7 +164,7 @@ uint8_t CPU::executeOp(OpCode op){
       rlc(A);
       break;
     case OpCode::LD_a16_SP:
-      load(mem(readD8()), SP);
+      load(mem(readD16()), SP);
       break;
     case OpCode::ADD_HL_BC:
       add(HL, BC);
