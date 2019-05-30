@@ -1,4 +1,4 @@
-#include "../src/MMU/BankedMemory.h"
+#include "../src/MMU/BankMemory.h"
 #include "gtest/gtest.h"
 
 namespace {

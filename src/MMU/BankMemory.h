@@ -15,9 +15,7 @@ public:
 
   void setBank(uint16_t bank) { m_bank = bank; }
 
-  //new [] operators...
   uint8_t& operator[](uint16_t address) { return memory[bankSelect(address)][convertAddress(address)]; };
-  // const uint8_t& operator[](uint16_t address) const { return memory[bankSelect(address)][convertAddress(address)]; };
 
 private:
   uint16_t bankSelect(uint16_t address) {

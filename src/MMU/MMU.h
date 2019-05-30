@@ -1,7 +1,7 @@
 #pragma once
 #include "../CPU/Interrupts.h"
 #include "../Timer/Timer.h"
-#include "BankedMemory.h"
+#include "BankMemory.h"
 #include "Cartridge.h"
 #include "SerialPort.h"
 #include <stdint.h>
