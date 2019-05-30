@@ -26,7 +26,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
     case 0xE000 ... 0xFDFF:
       // Same as C000-DFFF (ECHO)    (typically not used)
       // return echo[address & (~0xE000)];
-      assert(0);
+      return wram[address - 0xE000];
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
@@ -102,7 +102,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0xE000 ... 0xFDFF:
       // Same as C000-DDFF (ECHO)    (typically not used)
-      // echo[address & (~0xE000)] = data;
+      wram[address - 0xE000] = data;
       assert(0);
       break;
     case 0xFE00 ... 0xFE9F:
