@@ -62,7 +62,6 @@ OpCode CPU::readOp(void) {
   op = (OpCode)memory.read8bit(stored_pc);
 
   if(debug) *debug << "0x" <<std::hex << PC << ": " << opToString(op) << "(0x" << std::hex << unsigned(op) << ")"<< " ";
-  if(stored_pc == 0x20A) assert(0);
   return op;
 }
 

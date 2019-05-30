@@ -54,7 +54,6 @@ public:
   void addSigned(uint16_t &reg, const int8_t n);
   void andReg(Register &reg, const uint8_t n);
   void bit(Register &r, const uint8_t b);
-  void bit(MemRef &r, const uint8_t b);
   void callN(const uint16_t n);
   void ccf(void);
   void daa(void);
