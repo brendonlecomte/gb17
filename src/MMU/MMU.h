@@ -34,7 +34,7 @@ private:
   BankMemory vram;
   uint8_t wram_mem[0x4000] = {0};
   BankMemory wram;
-  uint8_t *boot = &io[0x4D];
+  uint8_t *boot = &io[0x50];
   uint8_t ie;
 };
 
