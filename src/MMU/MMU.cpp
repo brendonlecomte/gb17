@@ -30,9 +30,11 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
+      assert(0);
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
+      assert(0);
       break;
     case 0xFF00:
       // JOYP
@@ -75,8 +77,6 @@ uint8_t MMU::read8bit(const uint16_t address) {
 
       break;
   }
-  std::cout << "0x" << std::hex << unsigned(address) << std::endl;
-  assert(0);
   return 0;
 }
 
