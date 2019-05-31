@@ -37,7 +37,7 @@ add_test(NAME 03-SP_HL       COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms
 add_test(NAME 04-R_IMM       COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/04-op r,imm.gb")
 add_test(NAME 05-RP          COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/05-op rp.gb")
 add_test(NAME 06-LD_R_R      COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/06-ld r,r.gb")
-# add_test(NAME 07-JR_JP       COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb")
+add_test(NAME 07-JR_JP       COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/07-jr,jp,call,ret,rst.gb")
 add_test(NAME 08-Misc        COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/08-misc instrs.gb")
 add_test(NAME 09-R_R         COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/09-op r,r.gb")
 add_test(NAME 10-Bits        COMMAND test-rom  "${CMAKE_SOURCE_DIR}/gb-test-roms/cpu_instrs/individual/10-bit ops.gb")
