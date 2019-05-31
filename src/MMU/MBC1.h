@@ -34,12 +34,12 @@ public:
       }
       case 0x2000 ... 0x3FFF: //- ROM Bank Number (Write Only)
       {
-        assert(0);
+        // assert(0);
         break;
       }
       case 0x4000 ... 0x5FFF: //- RAM Bank Number - or - Upper Bits of ROM Bank Number (Write Only)
       {
-        assert(0);
+        // assert(0);
         break;
       }
       case 0x6000 ... 0x7FFF: //- ROM/RAM Mode Select (Write Only)
@@ -49,7 +49,7 @@ public:
       }
       case 0xA000 ... 0xBFFF: //- RAM Bank 00-03, if any (Read/Write)
       {
-        assert(0);
+        // assert(0);
         break;
       }
     }
