@@ -45,7 +45,6 @@ public:
   void setPointer(const uint16_t address) { addr = address; };
   operator uint8_t() { return mem.read8bit(addr); };
   operator uint16_t() { return mem.read16bit(addr); };
-  operator Register&() { return *this; };
   MemRef &operator=(const uint8_t &value) {
     mem.write(addr, value);
     return *this;
