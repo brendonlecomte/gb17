@@ -74,6 +74,7 @@ public:
 
   void load(Register &reg, uint8_t n);
   void load(MemRef &reg, const uint8_t n);
+  void load(MemRef &reg, const uint16_t n);
   void load(uint8_t &reg, const uint8_t n);
   void load(RegisterPair &reg, const uint16_t n);
   void load(uint16_t &reg, const uint16_t n);

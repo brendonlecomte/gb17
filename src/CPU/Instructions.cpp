@@ -412,6 +412,9 @@ void CPU::load(MemRef &reg, const uint8_t n) {
   reg = n;
 }
 
+void CPU::load(MemRef &reg, const uint16_t n) {
+  reg = (uint16_t)n;
+}
 
 void CPU::nop(void) {
   /*
