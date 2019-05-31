@@ -19,13 +19,12 @@ uint8_t MMU::read8bit(const uint16_t address) {
       // 8KB External RAM     (in cartridge, switchable bank, if any)
       return m_cartridge.read(address);
       break;
-    case 0xC000 ... 0xDFFF: // 0xCFFF:
+    case 0xC000 ... 0xDFFF:
       // 4KB Work RAM Bank 0 (WRAM)
       return wram[address - 0xC000];
       break;
     case 0xE000 ... 0xFDFF:
       // Same as C000-DFFF (ECHO)    (typically not used)
-      // return echo[address & (~0xE000)];
       return wram[address - 0xE000];
       break;
     case 0xFE00 ... 0xFE9F:
