@@ -837,7 +837,11 @@ uint8_t CPU::executeOp(OpCode op){
       std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::CALL_NC_a16:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      if(F.carry()) {
+        PC += 2;
+        return 2;
+      }
+      callN(readD16());
       break;
     case OpCode::PUSH_DE:
       stackPush(DE);
@@ -991,7 +995,6 @@ uint8_t CPU::executeOp(OpCode op){
 }
 
 uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
-  Register x = Register((uint8_t)mem(HL));
   switch(prefix_cb) {
     case 0x00: rlc(B); break;
     case 0x01: rlc(C); break;
@@ -1278,9 +1281,8 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xFB: setBit(E, 7); break;
     case 0xFC: setBit(H, 7); break;
     case 0xFD: setBit(L, 7); break;
-    case 0xFE: setBit(x, 7); break;
+    case 0xFE: setBit((Register&)mem(HL), 7); break;
     case 0xFF: setBit(A, 7); break;
   }
-  mem(HL) = (uint8_t)x;
   return OpCode_cycles_cb[prefix_cb];
 }
