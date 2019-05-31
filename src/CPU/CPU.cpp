@@ -942,7 +942,7 @@ uint8_t CPU::executeOp(OpCode op){
       AF = stackPop() & 0xFFF0;
       break;
     case OpCode::LD_A_Cm:
-      load(A, 0xFF00 + (uint8_t)C);
+      load(A, mem(0xFF00 + (uint8_t)C));
       break;
     case OpCode::DI:
       flags.clearMasterEnable();
