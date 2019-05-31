@@ -162,6 +162,7 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::RLCA:
       rlc(A);
+      F.clear_zero();
       break;
     case OpCode::LD_a16_SP:
       load(mem(readD16()), SP);
@@ -211,6 +212,7 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::RLA:
       rl(A);
+      F.clear_zero();
       break;
     case OpCode::JR_r8:
       jr(readR8());
@@ -314,14 +316,14 @@ uint8_t CPU::executeOp(OpCode op){
       break;
     case OpCode::INC_mHL:
       { // TODO : fix this so we dont need temp var
-        Register x = Register(mem(HL));
+        Register x = Register((uint8_t)mem(HL));
         inc(x);
         mem(HL) = (uint8_t)x;
       }
       break;
     case OpCode::DEC_mHL:
       { // TODO : fix this so we dont need temp var
-        Register x = Register(mem(HL));
+        Register x = Register((uint8_t)mem(HL));
         dec(x);
         mem(HL) = (uint8_t)x;
       }
@@ -644,7 +646,7 @@ uint8_t CPU::executeOp(OpCode op){
       sbc(A, L);
       break;
     case OpCode::SBC_A_HLm:
-      sbc(A, mem(HL));
+      sbc(A, (uint8_t)mem(HL));
       break;
     case OpCode::SBC_A_A:
       sbc(A, A);
@@ -989,6 +991,7 @@ uint8_t CPU::executeOp(OpCode op){
 }
 
 uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
+  Register x = Register((uint8_t)mem(HL));
   switch(prefix_cb) {
     case 0x00: rlc(B); break;
     case 0x01: rlc(C); break;
@@ -1275,9 +1278,9 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xFB: setBit(E, 7); break;
     case 0xFC: setBit(H, 7); break;
     case 0xFD: setBit(L, 7); break;
-    case 0xFE: setBit((Register&)mem(HL), 7); break;
+    case 0xFE: setBit(x, 7); break;
     case 0xFF: setBit(A, 7); break;
-
   }
+  mem(HL) = (uint8_t)x;
   return OpCode_cycles_cb[prefix_cb];
 }

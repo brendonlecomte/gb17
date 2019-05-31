@@ -69,7 +69,7 @@ int main(int argc, char** argv){
   Interrupts int_flags = Interrupts();
   Timer timer = Timer(int_flags);
   SerialPort serial = SerialPort();
-  MMU memory_manager = MMU(game_cart.getMemoryController(), int_flags, timer, serial);
+  MMU memory_manager = MMU(game_cart, int_flags, timer, serial);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
   PPU test_ppu = PPU(memory_manager, int_flags);
 

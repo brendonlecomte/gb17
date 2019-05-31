@@ -52,6 +52,9 @@ enum rom_size_e {
   ROM_1_5MByte = 0x54,
 };
 
+//const ignores sizes over $Mb
+const uint16_t rom_bank_lut[8] {2, 4, 8, 16, 32, 64, 128, 256};
+
 enum ram_size_e {
   RAM_None,
   RAM_2KBytes,
@@ -67,6 +70,7 @@ public:
   ~CartridgeHeader(){};
   void print(std::ostream &out) const;
   CartType getCartType() { return (CartType)cart_type; };
+  uint8_t getRomBanks() { return rom_bank_lut[rom_size]; };
   void populate(std::istream &in);
   void populate(std::vector<uint8_t>& rom);
   friend std::ostream &operator<<(std::ostream &out, const CartridgeHeader &c);

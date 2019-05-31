@@ -29,7 +29,7 @@ int main(int argc, char** argv){
   Interrupts interrupts = Interrupts();
   Timer timer = Timer(interrupts);
   SerialPort serial = SerialPort(&ser_out);
-  MMU memory_manager = MMU(game_cart.getMemoryController(), interrupts, timer, serial);
+  MMU memory_manager = MMU(game_cart, interrupts, timer, serial);
   cpu = new CPU(memory_manager, interrupts, NULL);
   PPU ppu = PPU(memory_manager, interrupts);
 

@@ -1,4 +1,5 @@
 #include "../src/MMU/BankMemory.h"
+#include "../src/MMU/Cartridge.h"
 #include "gtest/gtest.h"
 
 namespace {
@@ -8,7 +9,9 @@ class BankTest : public ::testing::Test {
 protected:
   // You can remove any or all of the following functions if its body
   // is empty.
-  BankMemory mem = BankMemory(0x1000, 4);
+  uint8_t data[0x4000] = {0};
+  BankMemory mem = BankMemory(data, 0x1000, 4);
+  Cartridge cart = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
 
   BankTest() {
 
@@ -46,5 +49,15 @@ TEST_F(BankTest, writeReadTest) {
   mem.setBank(2);
   EXPECT_EQ(mem[0x10FF], 0x00);
   EXPECT_EQ(mem[0xFF], 0xAA);
+
+  mem.setBank(3);
+  mem[0x1FFF] = 0xAA;
+  EXPECT_EQ(mem[0x1FFF], 0xAA);
+  // EXPECT_EQ(mem[0xFF], 0xAA);
+}
+
+TEST_F(BankTest, testCart) {
+  uint8_t t = cart.read(0x4000);
+  EXPECT_EQ(0xC3, t);
 }
 }

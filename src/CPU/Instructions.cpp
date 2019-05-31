@@ -571,6 +571,35 @@ void CPU::ret(void) {
   jp(stacked_pc);
 }
 
+void CPU::rr(Register &reg) {
+  /*
+  RR n          - Rotate n right through Carry flag.
+          n = A,B,C,D,E,H,L,(HL)
+          Flags affected:
+                  Z - Set if result is zero.
+                  N - Reset.
+                  H - Reset.
+                  C - Contains old bit 0 data.
+  */
+  uint8_t c = F.carry() << 7;
+  uint8_t lsb = (uint8_t)reg & 0x01;
+  if(lsb) {
+    F.set_carry();
+  } else {
+    F.clear_carry();
+  }
+
+  reg = (uint8_t)reg>>1 | c;
+
+  F.clear_subtract();
+  F.clear_half_carry();
+  if((uint8_t)reg == 0) {
+    F.set_zero();
+  } else {
+    F.clear_zero();
+  }
+}
+
 void CPU::rl(Register &reg) {
   /*
   RL n          - Rotate n left through Carry flag.
@@ -583,18 +612,19 @@ void CPU::rl(Register &reg) {
                   H - Reset.
                   C - Contains old bit 7 data.
   */
-  uint8_t c = F.carry();
-  uint8_t msb = (uint8_t)reg >> 7;
+  uint8_t c = F.carry() & 0x01;
+  uint8_t msb = (uint8_t)reg & 0x80;
   if(msb) {
     F.set_carry();
   } else {
     F.clear_carry();
   }
 
-  reg = (uint8_t)reg<<1 | c;
+  reg = (uint8_t)(reg<<1) | c;
 
   F.clear_subtract();
   F.clear_half_carry();
+
   if((uint8_t)reg == 0) {
     F.set_zero();
   } else {
@@ -660,34 +690,7 @@ void CPU::rlc(Register &reg) {
   }
 }
 
-void CPU::rr(Register &reg) {
-  /*
-  RR n          - Rotate n right through Carry flag.
-          n = A,B,C,D,E,H,L,(HL)
-          Flags affected:
-                  Z - Set if result is zero.
-                  N - Reset.
-                  H - Reset.
-                  C - Contains old bit 0 data.
-  */
-  uint8_t c = F.carry() << 7;
-  uint8_t lsb = (uint8_t)reg & 0x01;
-  if(lsb) {
-    F.set_carry();
-  } else {
-    F.clear_carry();
-  }
 
-  reg = (uint8_t)reg>>1 | c;
-
-  F.clear_subtract();
-  F.clear_half_carry();
-  if((uint8_t)reg == 0) {
-    F.set_zero();
-  } else {
-    F.clear_zero();
-  }
-}
 
 void CPU::sbc(Register &reg, const uint8_t n) {
   /*
@@ -699,8 +702,7 @@ void CPU::sbc(Register &reg, const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set if no borrow.
   */
-  uint8_t x = n + F.carry();
-  reg = alu.sub((uint8_t)reg, x);
+  reg = alu.sub((uint8_t)reg, n, F.carry());
 }
 
 void CPU::sub(Register &reg, const uint8_t n) {
@@ -713,7 +715,7 @@ void CPU::sub(Register &reg, const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set if no borrow.
   */
-  reg = alu.sub((uint8_t)reg, n);
+  reg = alu.sub((uint8_t)reg, n, 0);
 }
 
 void CPU::stop(void) {

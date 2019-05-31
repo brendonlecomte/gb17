@@ -12,7 +12,7 @@ protected:
   Timer timer = Timer(test_int);
   SerialPort serial = SerialPort();
   Cartridge cart  = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
-  MMU m_mmu = MMU(cart.getMemoryController(), test_int, timer, serial);
+  MMU m_mmu = MMU(cart, test_int, timer, serial);
   CPU m_cpu = CPU(m_mmu, test_int, NULL);
 
   CpuTest() {

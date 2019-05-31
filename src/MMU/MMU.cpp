@@ -10,14 +10,14 @@ uint8_t MMU::read8bit(const uint16_t address) {
       }
       // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
       // 0x4000 - 0x7fff 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
-      return m_cartridge->read(address);
+      return m_cartridge.read(address);
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
       return vram[address & (~0x8000)];
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
-      return m_cartridge->read(address);
+      return m_cartridge.read(address);
       break;
     case 0xC000 ... 0xDFFF: // 0xCFFF:
       // 4KB Work RAM Bank 0 (WRAM)
@@ -36,6 +36,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFF00:
       // JOYP
+      return 0;
       break;
     case 0xFF01:
       // Serial Data
@@ -86,7 +87,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0x0000 ... 0x7FFF:
       // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
       // 0x4000 - 0x7fff 16KB ROM Bank 01 ... NN (in cartridge, switchable bank number)
-      m_cartridge->write(address, data);
+      m_cartridge.write(address, data);
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
@@ -94,7 +95,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
-      m_cartridge->write(address, data);
+      m_cartridge.write(address, data);
       break;
     case 0xC000 ... 0xDFFF: //0xCFFF:
       // 4KB Work RAM Bank 0 & 1  (WRAM). CGB Banks extend 1-7
@@ -103,7 +104,6 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xE000 ... 0xFDFF:
       // Same as C000-DDFF (ECHO)    (typically not used)
       wram[address - 0xE000] = data;
-      assert(0);
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
@@ -155,7 +155,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       m_flags.enableInterrupts(data);
     }
     default:
-      m_cartridge->write(address, data);
+      m_cartridge.write(address, data);
       break;
   }
 }

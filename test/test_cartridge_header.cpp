@@ -33,10 +33,10 @@ class CartridgeHeaderTest : public ::testing::Test {
 };
 
 TEST_F(CartridgeHeaderTest, type) {
-  EXPECT_EQ(CartType::MBC1, cart.cart_header.getCartType());
+  EXPECT_EQ(CartType::MBC1, cart.getCartHeader().getCartType());
 }
 TEST_F(CartridgeHeaderTest, title) {
-  EXPECT_EQ("CPU_INSTRS", cart.cart_header.getTitleStr());
+  EXPECT_EQ("CPU_INSTRS", cart.getCartHeader().getTitleStr());
 }
 
 }

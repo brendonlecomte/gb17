@@ -1,5 +1,6 @@
 #pragma once
 #include "../CPU/Interrupts.h"
+#include "../CPU/register.h"
 #include "../Timer/Timer.h"
 #include "BankMemory.h"
 #include "Cartridge.h"
@@ -8,9 +9,10 @@
 
 class MMU {
 public:
-  MMU(CartridgeMemory *cart_memory, Interrupts &flags, Timer &timer, SerialPort serial)
-      : m_cartridge(cart_memory), m_flags(flags), m_timer(timer), m_serialPort(serial),
-        wram(0x1000, 2)
+  MMU(Cartridge &cart, Interrupts &flags, Timer &timer, SerialPort &serial)
+      : m_cartridge(cart), m_flags(flags), m_timer(timer), m_serialPort(serial),
+        wram(wram_mem, 0x1000, 2),
+        vram(vram_mem, 0x2000, 1)
   {
     *boot = 0;
   };
@@ -23,15 +25,15 @@ public:
 
 private:
   Interrupts &m_flags;
-  CartridgeMemory *m_cartridge;
-  SerialPort m_serialPort;
+  Cartridge &m_cartridge;
+  SerialPort &m_serialPort;
   Timer &m_timer;
   uint8_t hram[0x7F];
   uint8_t io[0x7F];
-  uint8_t vram[0x1FFF];
-  // uint8_t wram[0x2000];
+  uint8_t vram_mem[0x1FFF];
+  BankMemory vram;
+  uint8_t wram_mem[0x4000] = {0};
   BankMemory wram;
-  uint8_t echo[0x2000];
   uint8_t *boot = &io[0x4D];
   uint8_t ie;
 };
@@ -43,6 +45,7 @@ public:
   void setPointer(const uint16_t address) { addr = address; };
   operator uint8_t() { return mem.read8bit(addr); };
   operator uint16_t() { return mem.read16bit(addr); };
+  operator Register&() { return *this; };
   MemRef &operator=(const uint8_t &value) {
     mem.write(addr, value);
     return *this;
@@ -51,6 +54,7 @@ public:
     mem.write(addr, value);
     return *this;
   };
+
 
 private:
   uint16_t addr;

@@ -37,9 +37,9 @@ uint16_t ALU::add(const uint16_t a, const uint16_t b, const uint8_t carry) {
   return result;
 }
 
-uint8_t ALU::sub(const uint8_t a, const uint8_t b) {
-  uint16_t temp = a - b;
-  uint8_t hc_temp = (a & 0x0F) < (b & 0x0F);
+uint8_t ALU::sub(const uint8_t a, const uint8_t b, const uint8_t carry) {
+  int16_t temp = a - b - carry;
+  uint8_t hc_temp = ((int16_t)((a & 0x0F) - (b & 0x0F) - carry) < 0);
   uint8_t result = (uint8_t)temp & 0xFF;
   if(hc_temp) {
     m_flags.set_half_carry();
@@ -47,7 +47,7 @@ uint8_t ALU::sub(const uint8_t a, const uint8_t b) {
     m_flags.clear_half_carry();
   }
 
-  if(b > a) {
+  if(temp < 0) {
     m_flags.set_carry();
   } else {
     m_flags.clear_carry();

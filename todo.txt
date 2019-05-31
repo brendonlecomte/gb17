@@ -1,12 +1,13 @@
-Basic CPU
-- Instructions impl
-- OP Codes
-- Single Cycle execution
+Cartridge
+  - has open file handle, passes to components
+  - Header
+    - return to using file input stream to populate header
+  - Memory
+    - move memory to own source files for clarity
+    - build BankMemory from file here
 
 Emulator Top level
-- MMU
 - NoROM MBC
-- Serial debugging
 - Basic Instruction Tests
 * at this point a cart can run
 
