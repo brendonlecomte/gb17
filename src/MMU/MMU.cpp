@@ -29,7 +29,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
-      assert(0);
+      // assert(0);
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
@@ -37,7 +37,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFF00:
       // JOYP
-      return 0;
+      return joyp;
       break;
     case 0xFF01:
       // Serial Data
@@ -111,7 +111,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       // Not Usable
       break;
     case 0xFF00:
-      // JOYP
+      joyp = (data & 0x30) | joyp;
       break;
     case 0xFF01:
       // Serial Data
