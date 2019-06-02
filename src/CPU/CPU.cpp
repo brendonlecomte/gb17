@@ -995,6 +995,8 @@ uint8_t CPU::executeOp(OpCode op){
 }
 
 uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
+  Register x = Register();
+  x = (uint8_t) mem(HL);
   switch(prefix_cb) {
     case 0x00: rlc(B); break;
     case 0x01: rlc(C); break;
@@ -1002,7 +1004,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x03: rlc(E); break;
     case 0x04: rlc(H); break;
     case 0x05: rlc(L); break;
-    case 0x06: rlc((Register&)mem(HL)); break;
+    case 0x06: rlc(x);  mem(HL) = (uint8_t)x; break;
     case 0x07: rlc(A); break;
 
     case 0x08: rrc(B); break;
@@ -1011,7 +1013,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x0B: rrc(E); break;
     case 0x0C: rrc(H); break;
     case 0x0D: rrc(L); break;
-    case 0x0E: rrc((Register&)mem(HL)); break;
+    case 0x0E: rrc(x);  mem(HL) = (uint8_t)x; break;
     case 0x0F: rrc(A); break;
 
     case 0x10: rl(B); break;
@@ -1020,7 +1022,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x13: rl(E); break;
     case 0x14: rl(H); break;
     case 0x15: rl(L); break;
-    case 0x16: rl((Register&)mem(HL)); break;
+    case 0x16: rl(x); mem(HL) = (uint8_t)x; break;
     case 0x17: rl(A); break;
 
     case 0x18: rr(B); break;
@@ -1029,7 +1031,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x1B: rr(E); break;
     case 0x1C: rr(H); break;
     case 0x1D: rr(L); break;
-    case 0x1E: rr((Register&)mem(HL)); break;
+    case 0x1E: rr(x); mem(HL) = (uint8_t)x; break;
     case 0x1F: rr(A); break;
 
     case 0x20: sla(B); break;
@@ -1038,7 +1040,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x23: sla(E); break;
     case 0x24: sla(H); break;
     case 0x25: sla(L); break;
-    case 0x26: sla((Register&)mem(HL)); break;
+    case 0x26: sla(x); mem(HL) = (uint8_t)x; break;
     case 0x27: sla(A); break;
 
     case 0x28: sra(B); break;
@@ -1047,7 +1049,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x2B: sra(E); break;
     case 0x2C: sra(H); break;
     case 0x2D: sra(L); break;
-    case 0x2E: sra((Register&)mem(HL)); break;
+    case 0x2E: sra(x); mem(HL) = (uint8_t)x; break;
     case 0x2F: sra(A); break;
 
     case 0x30: swap(B); break;
@@ -1056,7 +1058,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x33: swap(E); break;
     case 0x34: swap(H); break;
     case 0x35: swap(L); break;
-    case 0x36: swap((Register&)mem(HL)); break;
+    case 0x36: swap(x); mem(HL) = (uint8_t)x; break;
     case 0x37: swap(A); break;
 
     case 0x38: srl(B); break;
@@ -1065,7 +1067,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x3B: srl(E); break;
     case 0x3C: srl(H); break;
     case 0x3D: srl(L); break;
-    case 0x3E: srl((Register&)mem(HL)); break;
+    case 0x3E: srl(x); mem(HL) = (uint8_t)x; break;
     case 0x3F: srl(A); break;
 
     case 0x40: bit(B, 0); break;
@@ -1074,7 +1076,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x43: bit(E, 0); break;
     case 0x44: bit(H, 0); break;
     case 0x45: bit(L, 0); break;
-    case 0x46: bit((Register&)mem(HL), 0); break;
+    case 0x46: bit(x, 0);  mem(HL) = (uint8_t)x; break;
     case 0x47: bit(A, 0); break;
 
     case 0x48: bit(B, 1); break;
@@ -1083,7 +1085,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x4B: bit(E, 1); break;
     case 0x4C: bit(H, 1); break;
     case 0x4D: bit(L, 1); break;
-    case 0x4E: bit((Register&)mem(HL), 1); break;
+    case 0x4E: bit(x, 1); mem(HL) = (uint8_t)x; break;
     case 0x4F: bit(A, 1); break;
 
     case 0x50: bit(B, 2); break;
@@ -1092,7 +1094,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x53: bit(E, 2); break;
     case 0x54: bit(H, 2); break;
     case 0x55: bit(L, 2); break;
-    case 0x56: bit((Register&)mem(HL), 2); break;
+    case 0x56: bit(x, 2); mem(HL) = (uint8_t)x; break;
     case 0x57: bit(A, 2); break;
 
     case 0x58: bit(B, 3); break;
@@ -1101,7 +1103,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x5B: bit(E, 3); break;
     case 0x5C: bit(H, 3); break;
     case 0x5D: bit(L, 3); break;
-    case 0x5E: bit((Register&)mem(HL), 3); break;
+    case 0x5E: bit(x, 3); mem(HL) = (uint8_t)x; break;
     case 0x5F: bit(A, 3); break;
 
     case 0x60: bit(B, 4); break;
@@ -1110,7 +1112,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x63: bit(E, 4); break;
     case 0x64: bit(H, 4); break;
     case 0x65: bit(L, 4); break;
-    case 0x66: bit((Register&)mem(HL), 4); break;
+    case 0x66: bit(x, 4); mem(HL) = (uint8_t)x; break;
     case 0x67: bit(A, 4); break;
 
     case 0x68: bit(B, 5); break;
@@ -1119,7 +1121,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x6B: bit(E, 5); break;
     case 0x6C: bit(H, 5); break;
     case 0x6D: bit(L, 5); break;
-    case 0x6E: bit((Register&)mem(HL), 5); break;
+    case 0x6E: bit(x, 5); mem(HL) = (uint8_t)x; break;
     case 0x6F: bit(A, 5); break;
 
     case 0x70: bit(B, 6); break;
@@ -1128,7 +1130,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x73: bit(E, 6); break;
     case 0x74: bit(H, 6); break;
     case 0x75: bit(L, 6); break;
-    case 0x76: bit((Register&)mem(HL), 6); break;
+    case 0x76: bit(x, 6); mem(HL) = (uint8_t)x; break;
     case 0x77: bit(A, 6); break;
 
     case 0x78: bit(B, 7); break;
@@ -1137,7 +1139,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x7B: bit(E, 7); break;
     case 0x7C: bit(H, 7); break;
     case 0x7D: bit(L, 7); break;
-    case 0x7E: bit((Register&)mem(HL), 7); break;
+    case 0x7E: bit(x, 7); mem(HL) = (uint8_t)x; break;
     case 0x7F: bit(A, 7); break;
 
     case 0x80: res(B, 0); break;
@@ -1146,7 +1148,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x83: res(E, 0); break;
     case 0x84: res(H, 0); break;
     case 0x85: res(L, 0); break;
-    case 0x86: res((Register&)mem(HL), 0); break;
+    case 0x86: res(x, 0); mem(HL) = (uint8_t)x; break;
     case 0x87: res(A, 0); break;
 
     case 0x88: res(B, 1); break;
@@ -1155,7 +1157,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x8B: res(E, 1); break;
     case 0x8C: res(H, 1); break;
     case 0x8D: res(L, 1); break;
-    case 0x8E: res((Register&)mem(HL), 1); break;
+    case 0x8E: res(x, 1); mem(HL) = (uint8_t)x; break;
     case 0x8F: res(A, 1); break;
 
     case 0x90: res(B, 2); break;
@@ -1164,7 +1166,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x93: res(E, 2); break;
     case 0x94: res(H, 2); break;
     case 0x95: res(L, 2); break;
-    case 0x96: res((Register&)mem(HL), 2); break;
+    case 0x96: res(x, 2); mem(HL) = (uint8_t)x; break;
     case 0x97: res(A, 2); break;
 
     case 0x98: res(B, 3); break;
@@ -1173,7 +1175,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0x9B: res(E, 3); break;
     case 0x9C: res(H, 3); break;
     case 0x9D: res(L, 3); break;
-    case 0x9E: res((Register&)mem(HL), 3); break;
+    case 0x9E: res(x, 3); mem(HL) = (uint8_t)x; break;
     case 0x9F: res(A, 3); break;
 
     case 0xA0: res(B, 4); break;
@@ -1182,7 +1184,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xA3: res(E, 4); break;
     case 0xA4: res(H, 4); break;
     case 0xA5: res(L, 4); break;
-    case 0xA6: res((Register&)mem(HL), 4); break;
+    case 0xA6: res(x, 4); mem(HL) = (uint8_t)x; break;
     case 0xA7: res(A, 4); break;
 
     case 0xA8: res(B, 5); break;
@@ -1191,7 +1193,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xAB: res(E, 5); break;
     case 0xAC: res(H, 5); break;
     case 0xAD: res(L, 5); break;
-    case 0xAE: res((Register&)mem(HL), 5); break;
+    case 0xAE: res(x, 5); mem(HL) = (uint8_t)x; break;
     case 0xAF: res(A, 5); break;
 
     case 0xB0: res(B, 6); break;
@@ -1200,7 +1202,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xB3: res(E, 6); break;
     case 0xB4: res(H, 6); break;
     case 0xB5: res(L, 6); break;
-    case 0xB6: res((Register&)mem(HL), 6); break;
+    case 0xB6: res(x, 6); mem(HL) = (uint8_t)x; break;
     case 0xB7: res(A, 6); break;
 
     case 0xB8: res(B, 7); break;
@@ -1209,7 +1211,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xBB: res(E, 7); break;
     case 0xBC: res(H, 7); break;
     case 0xBD: res(L, 7); break;
-    case 0xBE: res((Register&)mem(HL), 7); break;
+    case 0xBE: res(x, 7); mem(HL) = (uint8_t)x; break;
     case 0xBF: res(A, 7); break;
 
     case 0xC0: setBit(B, 0); break;
@@ -1218,7 +1220,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xC3: setBit(E, 0); break;
     case 0xC4: setBit(H, 0); break;
     case 0xC5: setBit(L, 0); break;
-    case 0xC6: setBit((Register&)mem(HL), 0); break;
+    case 0xC6: setBit(x, 0); mem(HL) = (uint8_t)x; break;
     case 0xC7: setBit(A, 0); break;
 
     case 0xC8: setBit(B, 1); break;
@@ -1227,7 +1229,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xCB: setBit(E, 1); break;
     case 0xCC: setBit(H, 1); break;
     case 0xCD: setBit(L, 1); break;
-    case 0xCE: setBit((Register&)mem(HL), 1); break;
+    case 0xCE: setBit(x, 1); mem(HL) = (uint8_t)x; break;
     case 0xCF: setBit(A, 1); break;
 
     case 0xD0: setBit(B, 2); break;
@@ -1236,7 +1238,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xD3: setBit(E, 2); break;
     case 0xD4: setBit(H, 2); break;
     case 0xD5: setBit(L, 2); break;
-    case 0xD6: setBit((Register&)mem(HL), 2); break;
+    case 0xD6: setBit(x, 2); mem(HL) = (uint8_t)x; break;
     case 0xD7: setBit(A, 2); break;
 
     case 0xD8: setBit(B, 3); break;
@@ -1245,7 +1247,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xDB: setBit(E, 3); break;
     case 0xDC: setBit(H, 3); break;
     case 0xDD: setBit(L, 3); break;
-    case 0xDE: setBit((Register&)mem(HL), 3); break;
+    case 0xDE: setBit(x, 3); mem(HL) = (uint8_t)x; break;
     case 0xDF: setBit(A, 3); break;
 
     case 0xE0: setBit(B, 4); break;
@@ -1254,7 +1256,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xE3: setBit(E, 4); break;
     case 0xE4: setBit(H, 4); break;
     case 0xE5: setBit(L, 4); break;
-    case 0xE6: setBit((Register&)mem(HL), 4); break;
+    case 0xE6: setBit(x, 4); mem(HL) = (uint8_t)x; break;
     case 0xE7: setBit(A, 4); break;
 
     case 0xE8: setBit(B, 5); break;
@@ -1263,7 +1265,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xEB: setBit(E, 5); break;
     case 0xEC: setBit(H, 5); break;
     case 0xED: setBit(L, 5); break;
-    case 0xEE: setBit((Register&)mem(HL), 5); break;
+    case 0xEE: setBit(x, 5); mem(HL) = (uint8_t)x; break;
     case 0xEF: setBit(A, 5); break;
 
     case 0xF0: setBit(B, 6); break;
@@ -1272,7 +1274,7 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xF3: setBit(E, 6); break;
     case 0xF4: setBit(H, 6); break;
     case 0xF5: setBit(L, 6); break;
-    case 0xF6: setBit((Register&)mem(HL), 6); break;
+    case 0xF6: setBit(x, 6); mem(HL) = (uint8_t)x; break;
     case 0xF7: setBit(A, 6); break;
 
     case 0xF8: setBit(B, 7); break;
@@ -1281,8 +1283,9 @@ uint8_t CPU::executeOpCb(uint8_t prefix_cb) {
     case 0xFB: setBit(E, 7); break;
     case 0xFC: setBit(H, 7); break;
     case 0xFD: setBit(L, 7); break;
-    case 0xFE: setBit((Register&)mem(HL), 7); break;
+    case 0xFE: setBit(x, 7); mem(HL) = (uint8_t)x; break;
     case 0xFF: setBit(A, 7); break;
   }
+
   return OpCode_cycles_cb[prefix_cb];
 }
