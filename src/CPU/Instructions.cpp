@@ -104,7 +104,7 @@ void CPU::andReg(Register &reg, const uint8_t n) {
                   C - Reset.
   */
   reg = reg & n;
-  if (reg.value() == 0) {
+  if ((uint8_t)reg == 0) {
     F.set_zero();
   } else {
     F.clear_zero();
@@ -227,19 +227,19 @@ void CPU::cp(Register &reg, const uint8_t n) {
                   H - Set if no borrow from bit 4.
                   C - Set for no borrow. (Set if A < n.)
   */
-  if(reg.value() == n)
+  if((uint8_t)reg == n)
     F.set_zero();
   else
     F.clear_zero();
 
   F.set_subtract();
 
-  if((n&0x0F) > (reg.value()&0x0F))
+  if((n&0x0F) > ((uint8_t)reg&0x0F))
     F.set_half_carry();
   else
     F.clear_half_carry();
 
-  if(reg.value() < n)
+  if((uint8_t)reg < n)
     F.set_carry();
   else
     F.clear_carry();
@@ -447,7 +447,7 @@ void CPU::sla(Register &reg) {
                   H - Reset.
                   C - Contains old bit 7 data.
   */
-  uint8_t msb = reg.value() >> 7;
+  uint8_t msb = (uint8_t)reg >> 7;
   if (msb) {
     F.set_carry();
   } else {
@@ -457,7 +457,7 @@ void CPU::sla(Register &reg) {
   F.clear_subtract();
   F.clear_half_carry();
 
-  reg = reg.value() << 1;
+  reg = (uint8_t)reg << 1;
   if ((uint8_t)reg == 0) {
     F.set_zero();
   } else {
@@ -515,7 +515,7 @@ void CPU::srl(Register &reg) {
   F.clear_subtract();
   F.clear_half_carry();
 
-  reg = ((uint8_t)reg >> 1);
+  reg = ((uint8_t)reg >> 1) ;
   if ((uint8_t)reg == 0) {
     F.set_zero();
   } else {
@@ -544,7 +544,7 @@ void CPU::orReg(Register &reg, const uint8_t n) {
                   H - Reset.
                   C - Reset.
   */
-  reg = reg.value() | n;
+  reg = (uint8_t)reg | n;
   if((uint8_t)reg == 0) {
     F.set_zero();
   }
@@ -562,7 +562,7 @@ void CPU::res(Register &reg, const uint8_t b) {
           b = 0-7, r = A,B,C,D,E,H,L,(HL)
           Flags affected:    None
   */
-  reg = reg.value() & ~(0x01 << b);
+  reg = (uint8_t)reg & ~(0x01 << b);
 }
 
 void CPU::ret(void) {
@@ -739,11 +739,11 @@ void CPU::swap(Register &reg) {
                   C - Reset.
   */
   uint8_t low, high;
-  low = reg.value()&0x0F;
-  high = reg.value()&0xF0;
+  low = (uint8_t)reg&0x0F;
+  high = (uint8_t)reg&0xF0;
   reg = (low<<4) | (high>>4);
 
-  if(reg.value() == 0)
+  if((uint8_t)reg == 0)
     F.set_zero();
   else
     F.clear_zero();
@@ -764,8 +764,8 @@ void CPU::xorReg(Register &reg, const uint8_t n) {
                   H - Reset.
                   C - Reset.
   */
-  reg = reg.value() ^ n;
-  if(reg.value() == 0 )
+  reg = (uint8_t)reg ^ n;
+  if((uint8_t)reg == 0 )
     F.set_zero();
   else
     F.clear_zero();
