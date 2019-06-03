@@ -40,7 +40,12 @@ void CPU::coreDump(void) {
   std::cout << "AF:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(AF) << " ";
   std::cout << "BC:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(BC) << " ";
   std::cout << "DE:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(DE) << " ";
-  std::cout << "HL:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(HL) << std::endl;
+  std::cout << "HL:0x" << std::setfill('0') << std::setw(4) << std::hex << unsigned(HL) << " ";
+  std::cout << "IME:0x"<< std::setfill('0') << std::setw(2) << std::hex << unsigned(flags.getMasterEnable()) << " ";
+  std::cout << "IF:0x" << std::setfill('0') << std::setw(2) << std::hex << unsigned(flags.getInterrupts()) << " ";
+  std::cout << "IE:0x" << std::setfill('0') << std::setw(2) << std::hex << unsigned(flags.getEnabledInterrupts()) << " ";
+  std::cout << "Halted:" <<  unsigned(halted) << " ";
+  std::cout << std::endl;
 }
 
 void CPU::stackPush(const uint16_t value) {
