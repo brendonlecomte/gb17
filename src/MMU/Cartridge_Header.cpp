@@ -159,6 +159,22 @@ void CartridgeHeader::populate(std::vector<uint8_t> &rom) {
   // std::copy(rom.begin() + 0x14E, rom.begin() + 0x14F, checksum);
 }
 
+
+// Get the ram size for initialising ram memory
+uint32_t CartridgeHeader::getRamSize() {
+  switch(ram_size) {
+  case RAM_None:
+    return 0;
+  case RAM_2KBytes:
+    return 0x800;
+  case RAM_8Kbytes:
+    return 0x2000;
+  case RAM_32KBytes:
+    return 0x8000;
+  }
+}
+
+
 std::string CartridgeHeader::getTitleStr(void) const{
   std::string s = std::string(title);
   return s;
