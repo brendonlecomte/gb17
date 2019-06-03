@@ -45,6 +45,7 @@ int main(int argc, char** argv){
     timer.update(clocks);
 
     if(saved_pc == cpu->PC){
+    if(saved_pc == cpu->PC && !cpu->halted){
         std::string ss;
         ss = ser_out.str();
         cpu->debugState();
