@@ -34,6 +34,8 @@ int main(int argc, char** argv){
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
 
+  game_cart.getCartHeader().print(std::cout);
+
   while(1) { //abstract this into GB::executeSingle()
     unsigned saved_pc = cpu->PC;
     uint32_t clocks = cpu->executeInstruction();
