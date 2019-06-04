@@ -103,32 +103,41 @@ MemRef& CPU::mem(const uint16_t address) {
 
 uint8_t CPU::processInterrupts(void) {
   // TODO: interrupt handling using Interrupt class
-  if(flags.getMasterEnable()) {
+  uint8_t ret_val = 0;
     if(flags.checkInterrupt(Interrupt::Joypad)) {
-      return vectorInterrupt(InterruptAddr::Joypad);
+      ret_val = vectorInterrupt(Interrupt::Joypad);
     }
-    if(flags.checkInterrupt(Interrupt::Serial)) {
-      return vectorInterrupt(InterruptAddr::Serial);
+    else if(flags.checkInterrupt(Interrupt::Serial)) {
+      ret_val = vectorInterrupt(Interrupt::Serial);
     }
-    if(flags.checkInterrupt(Interrupt::Timer)) {
-      return vectorInterrupt(InterruptAddr::Timer);
+    else if(flags.checkInterrupt(Interrupt::Timer)) {
+      ret_val = vectorInterrupt(Interrupt::Timer);
     }
-    if(flags.checkInterrupt(Interrupt::LCDStat)) {
-      return vectorInterrupt(InterruptAddr::LCDStat);
+    else if(flags.checkInterrupt(Interrupt::LCDStat)) {
+      ret_val = vectorInterrupt(Interrupt::LCDStat);
     }
-    if(flags.checkInterrupt(Interrupt::VBlank)) {
-      return vectorInterrupt(InterruptAddr::VBlank);
+    else if(flags.checkInterrupt(Interrupt::VBlank)) {
+      ret_val = vectorInterrupt(Interrupt::VBlank);
     }
-  }
+
   flags.updateIntStatus();
-  return 0;
+  return ret_val;
 }
 
-uint8_t CPU::vectorInterrupt(InterruptAddr address) {
-  flags.clearMasterEnable();
-  stackPush(PC);
-  jp((uint16_t)address);
-  return 5;
+uint8_t CPU::vectorInterrupt(Interrupt sig) {
+  if(!flags.getMasterEnable()) {
+    if(halted) {
+      halted = 0; //clear halt if we vector
+      return 2;
+    }
+  } else {
+    stackPush(PC);
+    flags.clearMasterEnable();
+    flags.clearInterrupt(sig);
+    jp((uint16_t)flags.getAddress(sig));
+    return 5;
+  }
+  return 2;
 }
 
 uint8_t CPU::executeInstruction(void) {
