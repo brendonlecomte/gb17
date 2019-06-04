@@ -195,7 +195,7 @@ uint8_t CPU::executeOp(OpCode op){
       F.clear_zero();
       break;
     case OpCode::STOP:
-      std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
+      // std::cout << "Fault: 0x" << std::hex << unsigned(op) << " " << opToString(op) << std::endl; assert(0);
       break;
     case OpCode::LD_DE_d16:
       load(DE, readD16());
