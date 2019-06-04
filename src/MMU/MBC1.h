@@ -15,12 +15,10 @@ public:
       }
       case 0xA000 ... 0xBFFF: // RAM Bank 00-03, if any (Read/Write)
       {
-        assert(0);
         if(!ram_enabled) break;
         return ram[addr - 0xA000];
       }
     }
-    // assert(0);
     return 0;
   };
 
@@ -57,7 +55,6 @@ public:
       }
       case 0xA000 ... 0xBFFF: //- RAM Bank 00-03, if any (Read/Write)
       {
-        // assert(0);
         if(!ram_enabled) break;
         ram[addr - 0xA000];
         break;
