@@ -25,6 +25,20 @@ public:
   uint8_t getEnabledInterrupts(void) { return enabled; }
 
 
+  uint16_t getAddress(Interrupt sig) {
+    switch (sig){
+      case Interrupt::Joypad:
+        return (uint16_t)InterruptAddr::Joypad;
+      case Interrupt::Serial:
+        return (uint16_t)InterruptAddr::Serial;
+      case Interrupt::Timer:
+        return (uint16_t)InterruptAddr::Timer;
+      case Interrupt::LCDStat:
+        return (uint16_t)InterruptAddr::LCDStat;
+      case Interrupt::VBlank:
+        return (uint16_t)InterruptAddr::VBlank;
+    }
+  }
   void setMasterEnable(void) { pre_enable = 1; }
 
   void updateIntStatus(void) {
