@@ -17,8 +17,6 @@ void onExit(int sigNum) {
             << "------------- Core Dump --------------"
             << std::endl;
   cpu->debugState();
-
-
   std::cout << ser_out.str();
   exit(sigNum);
 }
@@ -36,7 +34,6 @@ int main(int argc, char** argv){
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
 
-
   while(1) { //abstract this into GB::executeSingle()
     unsigned saved_pc = cpu->PC;
     uint32_t clocks = cpu->executeInstruction();
@@ -44,15 +41,14 @@ int main(int argc, char** argv){
     ppu.update(clocks);
     timer.update(clocks);
 
-    if(saved_pc == cpu->PC){
-    if(saved_pc == cpu->PC && !cpu->halted){
+    if(saved_pc == cpu->PC && !cpu->halted && cpu->op != OpCode::NOP){
         std::string ss;
         ss = ser_out.str();
         cpu->debugState();
-          //likely we are in a while(1)
-          std::cout << ser_out.str();
+        //likely we are in a while(1)
+        std::cout << ser_out.str();
         if(std::string::npos == ss.find("Passed")) {
-          exit(1);
+          exit(1); //Passed wasnt printed on the serial port
         }
         exit(0);
     }
