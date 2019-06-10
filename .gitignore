@@ -33,6 +33,6 @@
 
 .DS_Store
 
-build/*
+**/build/*
 roms/*
 .DS_Store
