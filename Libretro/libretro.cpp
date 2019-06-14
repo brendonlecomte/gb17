@@ -19,7 +19,13 @@ along with Vectrexia.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <memory>
+#include <array>
+
 #include "libretro.h"
+#include "Gameboy.h"
+
+Gameboy* gb = new Gameboy();
 
 // Callbacks
 static retro_log_printf_t log_cb;
@@ -32,6 +38,29 @@ static retro_audio_sample_batch_t audio_batch_cb;
 
 unsigned retro_api_version(void) { return RETRO_API_VERSION; }
 
+static std::array<std::pair<std::size_t, Buttons>, 8> key_map =
+{
+  {
+    { RETRO_DEVICE_ID_JOYPAD_UP,     Buttons::UP },
+    { RETRO_DEVICE_ID_JOYPAD_DOWN,   Buttons::DOWN },
+    { RETRO_DEVICE_ID_JOYPAD_LEFT,   Buttons::LEFT },
+    { RETRO_DEVICE_ID_JOYPAD_RIGHT,  Buttons::RIGHT },
+    { RETRO_DEVICE_ID_JOYPAD_A,      Buttons::A },
+    { RETRO_DEVICE_ID_JOYPAD_B,      Buttons::B },
+    { RETRO_DEVICE_ID_JOYPAD_START,  Buttons::START },
+    { RETRO_DEVICE_ID_JOYPAD_SELECT, Buttons::SELECT }
+  }
+};
+
+void process_inputs(void) {
+  input_poll_cb();
+  for(uint8_t i =0; i < 8; i ++){
+    auto val = input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key_map[i].first);
+    gb->pressButton(key_map[i].second, val);
+  }
+
+}
+
 // Cheats
 void retro_cheat_reset(void) {}
 void retro_cheat_set(unsigned index, bool enabled, const char *code) {}
@@ -39,20 +68,18 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code) {}
 // Load a cartridge
 bool retro_load_game(const struct retro_game_info *info)
 {
-    // Reset the Vectrex, clears the cart ROM and loads the System ROM
-    // vectrex->Reset();
+    gb->reset();
 
     if (info && info->data) { // ensure there is ROM data
-        return true; //vectrex->LoadCartridge((const uint8_t*)info->data, info->size);
+        return true; //gb->loadRom((const uint8_t*)info->data, info->size);
     }
-
     return true;
 }
 
 bool retro_load_game_special(unsigned game_type, const struct retro_game_info *info, size_t num_info) { return false; }
 
 // Unload the cartridge
-void retro_unload_game(void) { //vectrex->UnloadCartridge();
+void retro_unload_game(void) { gb->unloadRom();
 }
 
 unsigned retro_get_region(void) { return RETRO_REGION_PAL; }
@@ -88,7 +115,7 @@ void retro_set_input_state(retro_input_state_t cb) { input_state_cb = cb; }
 
 void retro_init(void)
 {
-    // vectrex->Reset();
+    gb->reset();
 }
 
 
@@ -98,8 +125,8 @@ void retro_init(void)
 void retro_get_system_info(struct retro_system_info *info)
 {
     memset(info, 0, sizeof(*info));
-    info->library_name = "MyGB"; //vectrex->getName();
-    info->library_version = "0.0.3"; //vectrex->GetVersion();
+    info->library_name = gb->getName();
+    info->library_version = gb->getVersion();
     info->need_fullpath = true;
     info->valid_extensions = "gb";
 }
@@ -134,15 +161,12 @@ const uint16_t frame_height = 144;
 const uint32_t frame_size = frame_width*frame_height;
 const uint32_t frame_pitch = sizeof(uint16_t) * frame_width;
 uint16_t framebuffer[frame_size];
+uint8_t audiobuffer[1] = {0};
 
 // Run a single frames with out Vectrex emulation.
 void retro_run(void)
 {
-    // gb->runFrame(framebuffer, audioBuffer);
-    for (int i = 0; i < 1200; i++) {
-        audio_cb(1, 1);
-    }
-
-    memset(framebuffer, col, frame_size*2); //test random colour
+    gb->runFrame(framebuffer, audiobuffer);
+    process_inputs();
     video_cb(framebuffer, frame_width, frame_height, frame_pitch);
 }
