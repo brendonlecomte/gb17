@@ -1,3 +1,4 @@
+#pragma once
 
 // Cycles are set for the 1MHz speed
 const uint8_t OpCode_cycles[256] = {

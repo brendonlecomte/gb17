@@ -1,6 +1,6 @@
 #include "CPU.h"
 #include <assert.h>
-#include  <iomanip>
+#include <iomanip>
 
 static const uint8_t Joypad = 0x10;
 static const uint8_t Serial = 0x08;

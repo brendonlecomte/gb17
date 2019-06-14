@@ -9,20 +9,22 @@ public:
   Interrupts() : flags(0), enabled(0), master(0), pre_enable(0) {};
   ~Interrupts(){};
 
+  void reset(void) { flags = 0; enabled = 0; };
+
   void setInterrupt(Interrupt sig) { flags |= (uint8_t)sig; };
   void clearInterrupt(Interrupt sig) { flags &= ~(uint8_t)sig; };
 
   uint8_t getInterrupts(void) { return flags; };
-  void setInterrupts(uint8_t val) { flags = val; }
+  void setInterrupts(uint8_t val) { flags = val; };
 
-  bool checkInterrupt(Interrupt sig) { return !!(flags  & (uint8_t)sig & enabled); }
+  bool checkInterrupt(Interrupt sig) { return !!(flags  & (uint8_t)sig & enabled); };
 
-  void enableInterrupt(Interrupt sig) { enabled |= (uint8_t)sig; }
-  void disableInterrupt(Interrupt sig) { enabled &= ~(uint8_t)sig; }
+  void enableInterrupt(Interrupt sig) { enabled |= (uint8_t)sig; };
+  void disableInterrupt(Interrupt sig) { enabled &= ~(uint8_t)sig; };
 
-  void enableInterrupts(uint8_t sig) { enabled |= sig; }
-  void disableInterrupts(uint8_t sig) { enabled &= ~sig; }
-  uint8_t getEnabledInterrupts(void) { return enabled; }
+  void enableInterrupts(uint8_t sig) { enabled |= sig; };
+  void disableInterrupts(uint8_t sig) { enabled &= ~sig; };
+  uint8_t getEnabledInterrupts(void) { return enabled; };
 
 
   uint16_t getAddress(Interrupt sig) {
@@ -38,17 +40,19 @@ public:
       case Interrupt::VBlank:
         return (uint16_t)InterruptAddr::VBlank;
     }
-  }
-  void setMasterEnable(void) { pre_enable = 1; }
+  };
+
+  void setMasterEnable(void) { pre_enable = 1; };
 
   void updateIntStatus(void) {
     if(pre_enable) {
       master = 1;
       pre_enable = 0;
     }
-  }
-  void clearMasterEnable(void) { master = 0; }
-  bool getMasterEnable(void) { return master; }
+  };
+
+  void clearMasterEnable(void) { master = 0; };
+  bool getMasterEnable(void) { return master; };
 
 private:
   uint8_t flags;

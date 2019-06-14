@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <bitset>
 
 class Register{
   public:
@@ -19,8 +18,10 @@ class Register{
 };
 
 
+
 class FlagRegister : public Register {
   public:
+    // TODO: Replace bit manip with bitset
       FlagRegister& operator =(const uint8_t& value) { set(value); return *this; };
       void set(uint8_t new_value) { m_val = new_value & 0xF0; };
       void set_carry() { m_val |= 0x10; };

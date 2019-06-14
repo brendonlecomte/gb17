@@ -65,3 +65,7 @@ add_test(NAME Test_Timer COMMAND gb17_test_timer)
 add_executable(gb17_test_banking "test_banking.cpp" ${core_sources})
 target_link_libraries(gb17_test_banking gtest_main)
 add_test(NAME Test_Banks COMMAND gb17_test_banking)
+
+add_executable(gb17_test_controller "test_controller.cpp" ${core_sources})
+target_link_libraries(gb17_test_controller gtest_main)
+add_test(NAME Test_Controller COMMAND gb17_test_controller)
