@@ -46,17 +46,11 @@ uint8_t MMU::read8bit(const uint16_t address) {
     case 0xFF02: // Serial Control ... .
       return m_serialPort.getControl();
       break;
-    case 0xFF04: // DIV
-      return m_timer.getDiv();
-      break;
-    case 0xFF05: // TIMA
-      return m_timer.getTima();
-      break;
-    case 0xFF06: // TMA
-      return m_timer.getTma();
-      break;
-    case 0xFF07: // TAC
-      return m_timer.getTac();
+    case 0xFF04:
+    case 0xFF05:
+    case 0xFF06:
+    case 0xFF07:
+      return m_timer.readRegister(address);
       break;
     case 0xFF0F: // IF
       return m_flags.getInterrupts();
@@ -120,17 +114,11 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xFF02:
       // serial control
       break;
-    case 0xFF04: // DIV
-      m_timer.setDiv();
-      break;
-    case 0xFF05: // TIMA
-      m_timer.setTima(data);
-      break;
-    case 0xFF06: // TMA
-      m_timer.setTma(data);
-      break;
+    case 0xFF04:
+    case 0xFF05:
+    case 0xFF06:
     case 0xFF07: // TAC
-      m_timer.setTac(data);
+      m_timer.writeRegister(address, data);
       break;
     case 0xFF0F: // IF
       m_flags.setInterrupts(data);

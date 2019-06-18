@@ -41,6 +41,37 @@ public:
     }
   }
 
+  uint8_t readRegister(const uint16_t addr) {
+    switch(addr) {
+      case 0xFF04: // DIV
+        return getDiv();
+      case 0xFF05: // TIMA
+        return getTima();
+      case 0xFF06: // TMA
+        return getTma();
+      case 0xFF07: // TAC
+        return getTac();
+    }
+    return 0;
+  };
+
+  void writeRegister(const uint16_t addr, const uint8_t data) {
+    switch(addr) {
+      case 0xFF04: // DIV
+        setDiv();
+        break;
+      case 0xFF05: // TIMA
+        setTima(data);
+        break;
+      case 0xFF06: // TMA
+        setTma(data);
+        break;
+      case 0xFF07: // TAC
+        setTac(data);
+        break;
+    }
+  };
+
   void setTac(uint8_t val) { tac = val; }
   uint8_t getTac() { return tac; }
 
