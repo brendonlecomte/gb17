@@ -2,6 +2,7 @@
 #include "../CPU/Interrupts.h"
 #include "../CPU/register.h"
 #include "../Timer/Timer.h"
+#include "../PPU/PPU.h"
 #include "BankMemory.h"
 #include "Cartridge.h"
 #include "SerialPort.h"
@@ -9,13 +10,13 @@
 
 class MMU {
 public:
-  MMU(Cartridge &cart, Interrupts &flags, Timer &timer, SerialPort &serial)
+  MMU(Cartridge &cart, PPU &ppu, Interrupts &flags, Timer &timer, SerialPort &serial)
       : m_cartridge(cart), m_flags(flags), m_timer(timer), m_serialPort(serial),
+        m_ppu(ppu),
         wram(wram_mem, 0x1000, 2),
-        vram(vram_mem, 0x2000, 1),
         joyp(0x1F)
   {
-    *boot = 0;
+    boot = 0;
   };
   ~MMU(){};
   uint8_t read8bit(const uint16_t address);
@@ -29,13 +30,12 @@ private:
   Cartridge &m_cartridge;
   SerialPort &m_serialPort;
   Timer &m_timer;
+  PPU &m_ppu;
   uint8_t hram[0x7F];
   uint8_t io[0x7F];
-  uint8_t vram_mem[0x1FFF];
-  BankMemory vram;
   uint8_t wram_mem[0x2000] = {0};
   BankMemory wram;
-  uint8_t *boot = &io[0x50];
+  uint8_t boot;
   uint8_t ie;
   uint8_t joyp;
 };

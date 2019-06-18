@@ -15,7 +15,8 @@ set(shared_sources  "src/CPU/ALU.cpp"
                     "src/MMU/Cartridge.cpp"
                     "src/MMU/Cartridge_Header.cpp"
                     "src/MMU/MMU.cpp"
-                    "src/Timer/Timer.cpp")
+                    "src/Timer/Timer.cpp"
+                    "src/PPU/PPU.cpp")
 
 set(sources "src/main.cpp"
             ${shared_sources})

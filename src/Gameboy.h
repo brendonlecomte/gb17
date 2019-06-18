@@ -5,7 +5,7 @@
 
 class Gameboy {
 public:
-  Gameboy(void) :interrupts(), controller(interrupts) {};
+  Gameboy(void) : interrupts(), controller(interrupts) {};
   ~Gameboy(void){};
 
   const char *getVersion(void) { return "0.0.1"; };
@@ -15,10 +15,10 @@ public:
   void unloadRom(void){};
 
   void pressButton(Buttons b, bool val) { controller.setButton(b, val); };
+
   void reset(void){};
 
   void runFrame(uint16_t *screen_buffer, uint8_t *audio_buffer){
-
     memset(screen_buffer, controller.getRegister(), 160*144*2); //test random colour
   };
 

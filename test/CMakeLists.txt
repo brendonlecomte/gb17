@@ -43,7 +43,8 @@ set (core_sources "../src/CPU/CPU.cpp"
                   "../src/MMU/MMU.cpp"
                   "../src/MMU/Cartridge.cpp"
                   "../src/MMU/Cartridge_Header.cpp"
-                  "../src/Timer/Timer.cpp")
+                  "../src/Timer/Timer.cpp"
+                  "../src/PPU/PPU.cpp")
 
 # Compile tests
 add_executable(gb17_test_cpu "test_cpu.cpp" ${core_sources})

@@ -5,7 +5,7 @@
 uint8_t MMU::read8bit(const uint16_t address) {
   switch (address) {
     case 0x0000 ... 0x7FFF:
-      if (*boot == 0 && address < 0x100) {
+      if (boot == 0 && address < 0x100) {
         return bootDMG[address];
       }
       // 0 - 0x3FFF 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
@@ -13,7 +13,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       return m_cartridge.read(address);
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
-      return vram[address & (~0x8000)];
+      return m_ppu.readVram(address & (~0x8000));
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
@@ -55,12 +55,18 @@ uint8_t MMU::read8bit(const uint16_t address) {
     case 0xFF0F: // IF
       return m_flags.getInterrupts();
       break;
-    case 0xFF03:
-    case 0xFF08 ... 0xFF0E:
-    case 0xFF10 ... 0xFF7F:
-      // I/O Ports
-      return io[((uint8_t)address & (~0xFF00))];
-      break;
+    case 0xFF40:
+    case 0xFF41:
+    case 0xFF42:
+    case 0xFF43:
+    case 0xFF44:
+    case 0xFF45:
+    case 0xFF46:
+    case 0xFF4A:
+    case 0xFF4B:
+      return m_ppu.readRegister(address);
+    case 0xFF50:
+      return boot;
     case 0xFF80 ... 0xFFFE:
       // High RAM (HRAM)
       return hram[((uint8_t)address & (~0xFF80))];
@@ -84,7 +90,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
-      vram[address & (~0x8000)] = data;
+      m_ppu.writeVram(address & (~0x8000), data);
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)
@@ -120,17 +126,21 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xFF07: // TAC
       m_timer.writeRegister(address, data);
       break;
+    case 0xFF40:
+    case 0xFF41:
+    case 0xFF42:
+    case 0xFF43:
+    case 0xFF44:
+    case 0xFF45:
+    case 0xFF46:
+    case 0xFF4A:
+    case 0xFF4B:
+      m_ppu.writeRegister(address, data);
+    case 0xFF50:
+      boot = data;
     case 0xFF0F: // IF
       m_flags.setInterrupts(data);
       break;
-    case 0xFF03:
-    case 0xFF08 ... 0xFF0E:
-    case 0xFF10 ... 0xFF7F: {
-      // I/O Ports
-      uint8_t io_address = ((uint8_t)address & (~0xFF00));
-      io[io_address] = data;
-      break;
-    }
     case 0xFF80 ... 0xFFFE: {
       // High RAM (HRAM)
       uint8_t hram_address = ((uint8_t)address & (~0xFF80));

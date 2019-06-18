@@ -69,9 +69,10 @@ int main(int argc, char** argv){
   Interrupts int_flags = Interrupts();
   Timer timer = Timer(int_flags);
   SerialPort serial = SerialPort();
-  MMU memory_manager = MMU(game_cart, int_flags, timer, serial);
+  PPU test_ppu = PPU(int_flags);
+  MMU memory_manager = MMU(game_cart, test_ppu, int_flags, timer, serial);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
-  PPU test_ppu = PPU(memory_manager, int_flags);
+
 
 
   //skip the boot loader

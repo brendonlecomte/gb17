@@ -27,9 +27,10 @@ int main(int argc, char** argv){
   Interrupts interrupts = Interrupts();
   Timer timer = Timer(interrupts);
   SerialPort serial = SerialPort(&ser_out);
-  MMU memory_manager = MMU(game_cart, interrupts, timer, serial);
+  PPU ppu = PPU(interrupts);
+  MMU memory_manager = MMU(game_cart, ppu, interrupts, timer, serial);
   cpu = new CPU(memory_manager, interrupts, NULL);
-  PPU ppu = PPU(memory_manager, interrupts);
+
 
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
