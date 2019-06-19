@@ -52,19 +52,17 @@ uint8_t MMU::read8bit(const uint16_t address) {
     case 0xFF07:
       return m_timer.readRegister(address);
       break;
+
     case 0xFF0F: // IF
       return m_flags.getInterrupts();
       break;
-    case 0xFF40:
-    case 0xFF41:
-    case 0xFF42:
-    case 0xFF43:
-    case 0xFF44:
-    case 0xFF45:
-    case 0xFF46:
-    case 0xFF4A:
-    case 0xFF4B:
+
+    case 0xFF40 ... 0xFF4B: //PPU
       return m_ppu.readRegister(address);
+
+    case 0xFF10 ... 0xFF26: //AUDIO
+      return 0;
+
     case 0xFF50:
       return boot;
     case 0xFF80 ... 0xFFFE:
@@ -120,24 +118,20 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xFF02:
       // serial control
       break;
-    case 0xFF04:
-    case 0xFF05:
-    case 0xFF06:
-    case 0xFF07: // TAC
+    case 0xFF04 ... 0xFF07: // TAC
       m_timer.writeRegister(address, data);
       break;
-    case 0xFF40:
-    case 0xFF41:
-    case 0xFF42:
-    case 0xFF43:
-    case 0xFF44:
-    case 0xFF45:
-    case 0xFF46:
-    case 0xFF4A:
-    case 0xFF4B:
+
+    case 0xFF40 ... 0xFF4B:
       m_ppu.writeRegister(address, data);
+      break;
+
+    case 0xFF10 ... 0xFF26: //AUDIO
+      break;
+
     case 0xFF50:
       boot = data;
+
     case 0xFF0F: // IF
       m_flags.setInterrupts(data);
       break;

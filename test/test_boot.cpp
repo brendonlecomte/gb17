@@ -12,12 +12,12 @@ protected:
   // You can remove any or all of the following functions if its body
   // is empty.
   Interrupts test_int = Interrupts();
-  Timer timer = Timer(test_int);
-  SerialPort serial = SerialPort();
+  Timer test_timer = Timer(test_int);
+  SerialPort test_serial = SerialPort();
   Cartridge game_cart = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
   PPU test_ppu = PPU(test_int);
-  MMU memory_manager = MMU(game_cart, test_ppu, test_int, timer, serial);
-  CPU test_cpu = CPU(memory_manager, test_int, NULL);
+  MMU test_mmu = MMU(game_cart, test_ppu, test_int, test_timer, test_serial);
+  CPU test_cpu = CPU(test_mmu, test_int, NULL);
 
 
   BootTest() {
@@ -53,7 +53,7 @@ TEST_F(BootTest, run_boot_rom) {
       break;
     }
   }
-  EXPECT_EQ(0x0100,   (uint16_t)test_cpu.PC);
+  EXPECT_EQ(0x0100,  (uint16_t)test_cpu.PC);
   EXPECT_EQ(0xFFFE,  (uint16_t)test_cpu.SP);
   EXPECT_EQ(0x01B0,  (uint16_t)test_cpu.AF);
   EXPECT_EQ(0x0013,  (uint16_t)test_cpu.BC);
