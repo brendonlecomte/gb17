@@ -28,8 +28,10 @@ public:
   void drawScanLine(uint8_t* line_buffer);
 
   void writeVram(const uint16_t addr, const uint8_t data);
-
   uint8_t readVram(const uint16_t addr);
+
+  void writeSprite(const uint16_t addr, const uint8_t data);
+  void readSprite(const uint16_t addr, const uint8_t data);
 
   void writeRegister(const uint16_t addr, uint8_t data);
   uint8_t readRegister(const uint16_t addr);
@@ -46,10 +48,10 @@ private:
   uint8_t WX; // (minus 7) TODO: make this better, minus 7 bit
   uint8_t DMA;
 
-  uint8_t vram[0x1FFF]; //8k VRAM
+  uint8_t vram[0x2000]; //8k VRAM
   uint8_t* tile_data;
   uint8_t* background_map;
-  uint8_t* sprites;
+  uint8_t sprites[0xA0];
 
   uint8_t current_line;
   uint32_t clock_count;
