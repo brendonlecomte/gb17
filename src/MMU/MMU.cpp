@@ -29,7 +29,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
-      // assert(0);
+      return m_ppu.readSprite(address);
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
@@ -104,6 +104,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
+      m_ppu.writeSprite(address, data);
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable

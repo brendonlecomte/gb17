@@ -31,7 +31,7 @@ public:
   uint8_t readVram(const uint16_t addr);
 
   void writeSprite(const uint16_t addr, const uint8_t data);
-  void readSprite(const uint16_t addr, const uint8_t data);
+  uint8_t readSprite(const uint16_t addr);
 
   void writeRegister(const uint16_t addr, uint8_t data);
   uint8_t readRegister(const uint16_t addr);

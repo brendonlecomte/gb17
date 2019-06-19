@@ -22,6 +22,13 @@ uint8_t PPU::readVram(const uint16_t addr) {
   return vram[addr];
 };
 
+void PPU::writeSprite(const uint16_t addr, const uint8_t data){
+}
+
+uint8_t PPU::readSprite(const uint16_t addr) {
+  return 0;
+}
+
 void PPU::writeRegister(const uint16_t addr, uint8_t data) {
   switch(addr) {
     case 0xFF40: // LCDC
