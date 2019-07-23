@@ -7,13 +7,15 @@
 
 class Cartridge {
 public:
-  Cartridge(const char* filename);
-  ~Cartridge(){};
+  Cartridge() {};
+  ~Cartridge() {};
+  void loadCart(const char* filename);
   uint8_t read(const uint16_t addr) { return memory_controller->read(addr); };
   void write(const uint16_t addr, const uint8_t data) { memory_controller->write(addr, data);  };
   CartridgeHeader& getCartHeader(void) { return cart_header; };
 
 private:
+  bool loaded;
   void create(void);
   CartridgeMemory* getMemoryController(void) { return memory_controller; };
   void createController(void);

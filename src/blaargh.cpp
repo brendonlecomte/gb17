@@ -23,7 +23,7 @@ void onExit(int sigNum) {
 
 int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
-  Cartridge game_cart = Cartridge(argv[1]);
+  Cartridge game_cart = Cartridge();
   Interrupts interrupts = Interrupts();
   Timer timer = Timer(interrupts);
   SerialPort serial = SerialPort(&ser_out);
@@ -35,6 +35,7 @@ int main(int argc, char** argv){
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
 
+  game_cart.loadCart(argv[1]);
   game_cart.getCartHeader().print(std::cout);
 
   while(1) { //abstract this into GB::executeSingle()

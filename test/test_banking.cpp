@@ -11,10 +11,10 @@ protected:
   // is empty.
   uint8_t data[0x4000] = {0};
   BankMemory mem = BankMemory(data, 0x1000, 4);
-  Cartridge cart = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
+  Cartridge cart = Cartridge();
 
   BankTest() {
-
+    cart.loadCart("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
   }
 
   ~BankTest() override {

@@ -65,7 +65,8 @@ bool compareStates(cpu_state &state, CPU &cpu){
 
 int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
-  Cartridge game_cart = Cartridge(argv[1]);
+  Cartridge game_cart = Cartridge();
+
   Interrupts int_flags = Interrupts();
   Timer timer = Timer(int_flags);
   SerialPort serial = SerialPort();
@@ -73,6 +74,7 @@ int main(int argc, char** argv){
   MMU memory_manager = MMU(game_cart, test_ppu, int_flags, timer, serial);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
 
+  game_cart.loadCart(argv[1]);
 
 
   //skip the boot loader

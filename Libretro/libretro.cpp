@@ -69,6 +69,7 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code) {}
 bool retro_load_game(const struct retro_game_info *info)
 {
     gb->reset();
+    gb->loadRom(info->path);
 
     if (info && info->data) { // ensure there is ROM data
         return true; //gb->loadRom((const uint8_t*)info->data, info->size);
@@ -103,7 +104,7 @@ void retro_deinit(void) {}
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
-    bool no_rom = true;
+    bool no_rom = false;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_rom);
 }
 
@@ -128,8 +129,21 @@ void retro_get_system_info(struct retro_system_info *info)
     info->library_name = gb->getName();
     info->library_version = gb->getVersion();
     info->need_fullpath = true;
-    info->valid_extensions = "gb";
+    info->valid_extensions = "gb | gbc";
 }
+
+
+
+void retro_reset(void) {
+}
+
+const uint16_t col = 0xFFFF;
+const uint16_t frame_width = 160;
+const uint16_t frame_height = 144;
+const uint32_t frame_size = frame_width*frame_height;
+const uint32_t frame_pitch = sizeof(uint16_t) * frame_width;
+uint16_t framebuffer[frame_size] = {col};
+uint8_t audiobuffer[1] = {0};
 
 /*
  * Tell libretro about the AV system; the fps, sound sample rate and the
@@ -142,26 +156,15 @@ void retro_get_system_av_info(struct retro_system_av_info *info) {
     memset(info, 0, sizeof(*info));
     info->timing.fps            = 59.7f; //16.7ms per frame
     info->timing.sample_rate    = 441000;
-    info->geometry.base_width   = 160;
-    info->geometry.base_height  = 144;
-    info->geometry.max_width    = 160;
-    info->geometry.max_height   = 144;
-    info->geometry.aspect_ratio = 160.0f / 144.0f;
+    info->geometry.base_width   = frame_width;
+    info->geometry.base_height  = frame_height;
+    info->geometry.max_width    = frame_width;
+    info->geometry.max_height   = frame_height;
+    info->geometry.aspect_ratio = float(frame_width) / float(frame_height);
 
     // the performance level is guide to frontend to give an idea of how intensive this core is to run
     environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_format);
 }
-
-void retro_reset(void) {
-}
-
-uint16_t col = 0x00F;
-const uint16_t frame_width = 160;
-const uint16_t frame_height = 144;
-const uint32_t frame_size = frame_width*frame_height;
-const uint32_t frame_pitch = sizeof(uint16_t) * frame_width;
-uint16_t framebuffer[frame_size];
-uint8_t audiobuffer[1] = {0};
 
 // Run a single frames with out Vectrex emulation.
 void retro_run(void)

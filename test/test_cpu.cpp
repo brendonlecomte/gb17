@@ -12,13 +12,13 @@ protected:
   Interrupts test_int = Interrupts();
   Timer timer = Timer(test_int);
   SerialPort serial = SerialPort();
-  Cartridge cart  = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
+  Cartridge cart  = Cartridge();
   PPU ppu = PPU(test_int);
   MMU m_mmu = MMU(cart, ppu, test_int, timer, serial);
   CPU m_cpu = CPU(m_mmu, test_int, NULL);
 
   CpuTest() {
-
+    cart.loadCart("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
   }
 
   ~CpuTest() override {

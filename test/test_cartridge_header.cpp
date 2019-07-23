@@ -7,10 +7,10 @@ namespace {
 // The fixture for testing class Foo.
 class CartridgeHeaderTest : public ::testing::Test {
  protected:
-  Cartridge cart = Cartridge("../../gb-test-roms/cpu_instrs/cpu_instrs.gb");
+  Cartridge cart = Cartridge();
 
   CartridgeHeaderTest() {
-
+    cart.loadCart("../../gb-test-roms/cpu_instrs/cpu_instrs.gb");
   }
 
   ~CartridgeHeaderTest() override {

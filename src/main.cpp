@@ -21,7 +21,7 @@
 
 int main(int argc, char** argv){
   //all this gets hidden inside GB() constructor
-  Cartridge game_cart = Cartridge(argv[1]);
+  Cartridge game_cart = Cartridge();
   Interrupts test_interrupts = Interrupts();
   Timer test_timer = Timer(test_interrupts);
   PPU test_ppu = PPU(test_interrupts);
@@ -31,6 +31,7 @@ int main(int argc, char** argv){
   if(argc == 3)
     debug = &std::cout;
 
+  game_cart.loadCart(argv[1]);
   CPU test_cpu = CPU(memory_manager, test_interrupts, debug);
 
 
@@ -52,12 +53,6 @@ int main(int argc, char** argv){
     clocks += test_cpu.processInterrupts();
     test_ppu.update(clocks);
     test_timer.update(clocks);
-    if(test_cpu.op == OpCode::EI) {
-      start_log = 1;
-    }
-    if(start_log) {
-      std::cin >> x;
-    }
   }
 
   std::cout << std::endl;

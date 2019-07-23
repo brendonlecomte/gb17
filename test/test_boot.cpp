@@ -14,14 +14,14 @@ protected:
   Interrupts test_int = Interrupts();
   Timer test_timer = Timer(test_int);
   SerialPort test_serial = SerialPort();
-  Cartridge game_cart = Cartridge("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
+  Cartridge game_cart = Cartridge();
   PPU test_ppu = PPU(test_int);
   MMU test_mmu = MMU(game_cart, test_ppu, test_int, test_timer, test_serial);
   CPU test_cpu = CPU(test_mmu, test_int, NULL);
 
 
   BootTest() {
-
+    game_cart.loadCart("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
   }
 
   ~BootTest() override {

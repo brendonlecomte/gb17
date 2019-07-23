@@ -20,7 +20,7 @@ void Cartridge::createController(void) {
   }
 }
 
-Cartridge::Cartridge(const char *filename) {
+void Cartridge::loadCart(const char *filename) {
   std::ifstream file(filename, std::ifstream::in);
   // ensure file exists
   if (!file)
@@ -43,4 +43,5 @@ Cartridge::Cartridge(const char *filename) {
 
   ram = new uint8_t[cart_header.getRamSize()];
   createController();
+  loaded = true;
 }
