@@ -172,6 +172,7 @@ uint32_t CartridgeHeader::getRamSize() {
   case RAM_32KBytes:
     return 0x8000;
   }
+  return 0;
 }
 
 
