@@ -98,7 +98,7 @@ public:
 
   void writeRegister(const uint16_t addr, uint8_t data);
   uint8_t readRegister(const uint16_t addr);
-  void drawTilePixel(sprite_t* sprite, uint16_t* buffer, const uint8_t x, const uint8_t y);
+  void drawTilePixel(sprite_t* sprite, const uint8_t screen_x,const uint8_t screen_y, const uint8_t tile_x, const uint8_t tile_y);
 
 private:
   void oamSearch();
@@ -107,8 +107,8 @@ private:
   void vblank();
 
   uint16_t* getLineBuffer(uint8_t y);
-  uint8_t getBGTileIndex(uint8_t x, uint8_t y);
-  sprite_t* getTileSprite(uint8_t tile_index);
+  int8_t getBGTileIndex(uint8_t x, uint8_t y);
+  sprite_t* getTileSprite(int8_t tile_index);
   void drawBGLine(const uint8_t ly);
 
 

@@ -75,24 +75,24 @@ TEST_F(PPUTest, DrawSprite) {
                       0xFF, 0xFF, //all 3
                     };
 
-  ppu.drawTilePixel(&sprite, buffer, 0, 0);
+  ppu.drawTilePixel(&sprite, 0, 0, 0, 0);
   EXPECT_EQ(buffer[0], 0xFFFF);
-  ppu.drawTilePixel(&sprite, buffer, 7, 0);
+  ppu.drawTilePixel(&sprite, 0, 7, 0, 0);
   EXPECT_EQ(buffer[7], 0xFFFF);
 
-  ppu.drawTilePixel(&sprite, &buffer[8], 0, 1);
+  ppu.drawTilePixel(&sprite, 0, 1, 0, 1);
   EXPECT_EQ(buffer[8], 0x6969);
-  ppu.drawTilePixel(&sprite, &buffer[8], 7, 1);
+  ppu.drawTilePixel(&sprite, 7, 1, 7, 1);
   EXPECT_EQ(buffer[15], 0x6969);
 
-  ppu.drawTilePixel(&sprite, &buffer[16], 0, 2);
+  ppu.drawTilePixel(&sprite, 0, 2, 7, 2);
   EXPECT_EQ(buffer[16], 0xa9a9);
-  ppu.drawTilePixel(&sprite, &buffer[16], 7, 2);
+  ppu.drawTilePixel(&sprite, 7, 2, 7, 2);
   EXPECT_EQ(buffer[23], 0xa9a9);
 
-  ppu.drawTilePixel(&sprite, &buffer[24], 0, 3);
+  ppu.drawTilePixel(&sprite, 0, 3, 0, 3);
   EXPECT_EQ(buffer[24], 0x0000);
-  ppu.drawTilePixel(&sprite, &buffer[24], 7, 3);
+  ppu.drawTilePixel(&sprite, 7, 3, 7, 3);
   EXPECT_EQ(buffer[31], 0x0000);
 
 
