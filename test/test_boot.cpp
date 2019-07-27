@@ -3,6 +3,7 @@
 #include "../src/MMU/MMU.h"
 #include "../src/MMU/Cartridge.h"
 #include "../src/PPU/PPU.h"
+#include "../src/Controller.h"
 
 namespace {
 
@@ -15,8 +16,9 @@ protected:
   Timer test_timer = Timer(test_int);
   SerialPort test_serial = SerialPort();
   Cartridge game_cart = Cartridge();
+  Controller test_controller = Controller(test_int);
   PPU test_ppu = PPU(test_int);
-  MMU test_mmu = MMU(game_cart, test_ppu, test_int, test_timer, test_serial);
+  MMU test_mmu = MMU(game_cart, test_ppu, test_int, test_timer, test_serial, test_controller);
   CPU test_cpu = CPU(test_mmu, test_int, NULL);
 
 

@@ -6,6 +6,7 @@
 #include "MMU/MMU.h"
 #include "PPU/PPU.h"
 #include "Timer/Timer.h"
+#include "Controller.h"
 
 
 CPU* cpu;
@@ -27,8 +28,9 @@ int main(int argc, char** argv){
   Interrupts interrupts = Interrupts();
   Timer timer = Timer(interrupts);
   SerialPort serial = SerialPort(&ser_out);
+  Controller controller = Controller(interrupts);
   PPU ppu = PPU(interrupts);
-  MMU memory_manager = MMU(game_cart, ppu, interrupts, timer, serial);
+  MMU memory_manager = MMU(game_cart, ppu, interrupts, timer, serial, controller);
   cpu = new CPU(memory_manager, interrupts, NULL);
 
 

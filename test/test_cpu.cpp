@@ -1,5 +1,6 @@
 #include "../src/CPU/CPU.h"
 #include "../src/PPU/PPU.h"
+#include "../src/Controller.h"
 #include "gtest/gtest.h"
 
 namespace {
@@ -13,8 +14,9 @@ protected:
   Timer timer = Timer(test_int);
   SerialPort serial = SerialPort();
   Cartridge cart  = Cartridge();
+  Controller controller = Controller(test_int);
   PPU ppu = PPU(test_int);
-  MMU m_mmu = MMU(cart, ppu, test_int, timer, serial);
+  MMU m_mmu = MMU(cart, ppu, test_int, timer, serial, controller);
   CPU m_cpu = CPU(m_mmu, test_int, NULL);
 
   CpuTest() {

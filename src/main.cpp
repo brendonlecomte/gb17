@@ -8,6 +8,7 @@
 #include "MMU/Cartridge.h"
 #include "PPU/PPU.h"
 #include "Timer/Timer.h"
+#include "Controller.h"
 
 
 //perhaps this will show up in the GB class too
@@ -26,7 +27,8 @@ int main(int argc, char** argv){
   Timer test_timer = Timer(test_interrupts);
   PPU test_ppu = PPU(test_interrupts);
   SerialPort test_serial = SerialPort();
-  MMU memory_manager = MMU(game_cart, test_ppu, test_interrupts, test_timer, test_serial);
+  Controller test_buttons = Controller(test_interrupts);
+  MMU memory_manager = MMU(game_cart, test_ppu, test_interrupts, test_timer, test_serial, test_buttons);
   std::ostream *debug = NULL;
   if(argc == 3)
     debug = &std::cout;

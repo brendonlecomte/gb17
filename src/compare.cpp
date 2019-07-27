@@ -9,6 +9,7 @@
 #include "MMU/MMU.h"
 #include "MMU/Cartridge.h"
 #include "PPU/PPU.h"
+#include "Controller.h"
 
 typedef struct {
   uint16_t op, pc, sp, af, bc, de, hl;
@@ -71,7 +72,8 @@ int main(int argc, char** argv){
   Timer timer = Timer(int_flags);
   SerialPort serial = SerialPort();
   PPU test_ppu = PPU(int_flags);
-  MMU memory_manager = MMU(game_cart, test_ppu, int_flags, timer, serial);
+  Controller controller = Controller(int_flags);
+  MMU memory_manager = MMU(game_cart, test_ppu, int_flags, timer, serial, controller);
   CPU test_cpu = CPU(memory_manager, int_flags, &std::cout);
 
   game_cart.loadCart(argv[1]);
