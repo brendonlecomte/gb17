@@ -14,7 +14,7 @@ public:
     controller(interrupts),
     ppu(interrupts),
     timer(interrupts),
-    mmu(cart, ppu, interrupts, timer, serial),
+    mmu(cart, ppu, interrupts, timer, serial, controller),
     cpu(mmu, interrupts, NULL) {};
   ~Gameboy(void){};
 
@@ -46,12 +46,14 @@ public:
   };
 
 private:
-  Cartridge cart;
   Interrupts interrupts;
+  Cartridge cart;
   Timer timer;
   SerialPort serial;
+  Controller controller;
+  PPU ppu;
   MMU mmu;
   CPU cpu;
-  PPU ppu;
-  Controller controller;
+  
+  
 };

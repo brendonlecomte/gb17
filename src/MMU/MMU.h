@@ -3,6 +3,7 @@
 #include "../CPU/register.h"
 #include "../Timer/Timer.h"
 #include "../PPU/PPU.h"
+#include "../Controller.h"
 #include "BankMemory.h"
 #include "Cartridge.h"
 #include "SerialPort.h"
@@ -10,8 +11,8 @@
 
 class MMU {
 public:
-  MMU(Cartridge &cart, PPU &ppu, Interrupts &flags, Timer &timer, SerialPort &serial)
-      : m_cartridge(cart), m_flags(flags), m_timer(timer), m_serialPort(serial),
+  MMU(Cartridge &cart, PPU &ppu, Interrupts &flags, Timer &timer, SerialPort &serial, Controller &controller)
+      : m_cartridge(cart), m_flags(flags), m_timer(timer), m_serialPort(serial), m_controller(controller),
         m_ppu(ppu),
         wram(wram_mem, 0x1000, 2),
         joyp(0x1F)
@@ -29,6 +30,7 @@ private:
   Interrupts &m_flags;
   Cartridge &m_cartridge;
   SerialPort &m_serialPort;
+  Controller &m_controller;
   Timer &m_timer;
   PPU &m_ppu;
   uint8_t hram[0x7F];
