@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <vector>
 #include "../CPU/Interrupts.h"
 
 const uint8_t bg_buffer_width = 160;
@@ -15,6 +16,28 @@ enum class PPUMode : uint8_t {
 
 typedef struct {
   uint8_t data[16];
+} tile_t;
+
+typedef struct {
+  union {
+    struct {
+        uint8_t y; //This number is +16 for Y scrolling.
+        uint8_t x; //this number is +8 its actual value. To allow X scrolling
+        uint8_t index;
+        union {
+            struct {
+              uint8_t obj_priority:1; //(0=OBJ Above BG, 1=OBJ Behind BG color 1-3)
+              uint8_t y_flip:1;       //(0=Normal, 1=Vertically mirrored)
+              uint8_t x_flip :1;      // (0=Normal, 1=Horizontally mirrored)
+              uint8_t palette:1;      //Palette number  **Non CGB Mode Only** (0=OBP0, 1=OBP1)
+              uint8_t vram_bank:1;    // Tile VRAM-Bank  **CGB Mode Only**     (0=Bank 0, 1=Bank 1)
+              uint8_t cbg_palette:3;  //-0 Palette number  **CGB Mode Only**     (OBP0-7)
+            } fields;
+            uint8_t reg;
+        } attributes;
+    } info;
+    uint8_t data[4];
+  };
 } sprite_t;
 
 typedef struct {
@@ -47,9 +70,6 @@ typedef struct {
   };
 } stat_reg_t;
 
-// $9C00-$9FFF	BG Map Data 2
-// $9800-$9BFF	BG Map Data 1
-// $8000-$97FF	Character RAM
 
 class PPU {
 
@@ -67,9 +87,9 @@ public:
         background_map[0] = &vram[0x1800]; //location in VRAM of BG Map
         background_map[1] = &vram[0x1C00];
 
-        tile_data[0] = (sprite_t*)&vram[0];
-        tile_data[1] = (sprite_t*)&vram[0x800]; //signed indexing
-
+        tile_data[0] = (tile_t*)&vram[0];
+        tile_data[1] = (tile_t*)&vram[0x800]; //signed indexing
+        sprites = (sprite_t*)&oam[0];
         screen_buffer = 0;
       };
   ~PPU(){};
@@ -98,19 +118,31 @@ public:
 
   void writeRegister(const uint16_t addr, uint8_t data);
   uint8_t readRegister(const uint16_t addr);
-  void drawTilePixel(sprite_t* sprite, const uint8_t screen_x,const uint8_t screen_y, const uint8_t tile_x, const uint8_t tile_y);
+
+  uint8_t* dmaTransferDst(void) { return &oam[0]; };
+  uint8_t  dmaStart(void) { return DMA; }
+
+  // Take a X,Y on the screen and draw the pixel using a given palette
+  void drawPixelOnScreen(const uint8_t screen_x, const uint8_t screen_y, const uint16_t* pal, const uint8_t index);
+
+  // Return the Tile Pixel Index (0 - 3) from a position within a tile 
+  uint8_t getTilePixel(tile_t* tile, const uint8_t tile_x, const uint8_t tile_y);
+
+  // Search the oam for a vector of active sprite indexes
+  std::vector<uint8_t> oamSearch(const sprite_t* oam, const uint8_t ly);
+
 
 private:
-  void oamSearch();
   void pixelTransfer();
   void hblank();
   void vblank();
 
-  uint16_t* getLineBuffer(uint8_t y);
   int8_t getBGTileIndex(uint8_t x, uint8_t y);
-  sprite_t* getTileSprite(int8_t tile_index);
-  void drawBGLine(const uint8_t ly);
+  tile_t* getTileData(int8_t tile_index);
 
+  void drawBGLine(const uint8_t ly);
+  void drawWindowLine(const uint8_t ly);
+  void drawSpriteLine(const uint8_t ly);
 
   Interrupts &flags;
   lcdc_reg_t LCDC;
@@ -123,13 +155,14 @@ private:
   uint8_t WX; // (minus 7) TODO: make this better, minus 7 bit
   uint8_t DMA;
 
-  bool vlanked;
   uint16_t* screen_buffer;
   uint16_t bg_buffer[bg_buffer_width*bg_buffer_height]; //buffer for the full bg map
   uint8_t vram[0x2000]; //8k VRAM starts at 0x8000
-  sprite_t* tile_data[2];
+  tile_t* tile_data[2];
   uint8_t* background_map[2];
-  uint8_t sprites[0xA0];
+  uint8_t oam[0xA0];
+  sprite_t* sprites;
+  std::vector<uint8_t> found_sprites;
 
   uint32_t clock_count;
 };

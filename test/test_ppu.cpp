@@ -59,44 +59,58 @@ TEST_F(PPUTest, ModeTest) {
   EXPECT_EQ(0x01, ppu.readRegister(0xFF41));
 }
 
-TEST_F(PPUTest, DrawSprite) {
+TEST_F(PPUTest, getTilePixel) {
   uint16_t buffer[8*8]; //tile to fill
-
+  ppu.setScreenBuffer(&buffer[0]);
   memset(buffer, 0xA5, 8*8*sizeof(uint16_t));
   EXPECT_EQ(buffer[0], 0xA5A5);
 
-  sprite_t sprite = { 0x00, 0x00, //all 0
-                      0x00, 0xFF, //all 1
-                      0xFF, 0x00, //all 2
-                      0xFF, 0xFF, //all 3
-                      0x00, 0x00, //all 0
-                      0x00, 0xFF, //all 1
-                      0xFF, 0x00, //all 2
-                      0xFF, 0xFF, //all 3
-                    };
+  tile_t sprite = { 
+                    0x00, 0x00, //all 0
+                    0x00, 0xFF, //all 1
+                    0xFF, 0x00, //all 2
+                    0xFF, 0xFF, //all 3
+                    0x00, 0x00, //all 0
+                    0x00, 0xFF, //all 1
+                    0xFF, 0x00, //all 2
+                    0xFF, 0xFF, //all 3
+                  };
 
-  ppu.drawTilePixel(&sprite, 0, 0, 0, 0);
-  EXPECT_EQ(buffer[0], 0xFFFF);
-  ppu.drawTilePixel(&sprite, 0, 7, 0, 0);
-  EXPECT_EQ(buffer[7], 0xFFFF);
+  EXPECT_EQ(0, ppu.getTilePixel(&sprite, 0, 0));
+  EXPECT_EQ(0, ppu.getTilePixel(&sprite, 7, 0));
 
-  ppu.drawTilePixel(&sprite, 0, 1, 0, 1);
-  EXPECT_EQ(buffer[8], 0x6969);
-  ppu.drawTilePixel(&sprite, 7, 1, 7, 1);
-  EXPECT_EQ(buffer[15], 0x6969);
+  EXPECT_EQ(1, ppu.getTilePixel(&sprite, 0, 1));
+  EXPECT_EQ(1, ppu.getTilePixel(&sprite, 7, 1));
+  
+  EXPECT_EQ(2, ppu.getTilePixel(&sprite, 0, 2));
+  EXPECT_EQ(2, ppu.getTilePixel(&sprite, 7, 2));
 
-  ppu.drawTilePixel(&sprite, 0, 2, 7, 2);
-  EXPECT_EQ(buffer[16], 0xa9a9);
-  ppu.drawTilePixel(&sprite, 7, 2, 7, 2);
-  EXPECT_EQ(buffer[23], 0xa9a9);
+  EXPECT_EQ(3, ppu.getTilePixel(&sprite, 0, 3));
+  EXPECT_EQ(3, ppu.getTilePixel(&sprite, 7, 3));
+}
 
-  ppu.drawTilePixel(&sprite, 0, 3, 0, 3);
-  EXPECT_EQ(buffer[24], 0x0000);
-  ppu.drawTilePixel(&sprite, 7, 3, 7, 3);
-  EXPECT_EQ(buffer[31], 0x0000);
+const uint8_t oam[160] = {
+                          //  x,    y,    i,    f,
+                          0x00, 0x00, 0x00, 0x00,  //no sprite visible
+                          0x00, 0x10, 0x01, 0x00,  //no sprite visible
+                          0x08, 0x10, 0x02, 0x00,  //sprite visible from LY 0 - 8
+                          0x08, 0x11, 0x02, 0x00,  //sprite visible from LY 0 - 8
+                          0x10, 0x00, 0x03, 0x00,  //sprite visible from LY 0 - 8
+                          0x08, 0x00, 0x04, 0x00,  //sprite visible from LY 0 - 8
+                          };  
 
+TEST_F(PPUTest, getOamCount){
+  std::vector<uint8_t> found = ppu.oamSearch((sprite_t*)oam, 0);
+  EXPECT_EQ(1, found.size());
 
+  found = ppu.oamSearch((sprite_t*)oam, 1);
+  EXPECT_EQ(2, found.size());
 
+  found = ppu.oamSearch((sprite_t*)oam, 8);
+  EXPECT_EQ(1, found.size());
+}
+
+TEST_F(PPUTest, getOamIndexes) {
 
 }
 

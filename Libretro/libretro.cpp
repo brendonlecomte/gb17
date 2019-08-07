@@ -54,11 +54,10 @@ static std::array<std::pair<std::size_t, Buttons>, 8> key_map =
 
 void process_inputs(void) {
   input_poll_cb();
-  for(uint8_t i =0; i < 8; i ++){
+  for(uint8_t i = 0; i < 8; i ++){
     auto val = input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, key_map[i].first);
-    gb->pressButton(key_map[i].second, val);
+    gb->pressButton(key_map[i].second, !!val);
   }
-
 }
 
 // Cheats
@@ -70,10 +69,6 @@ bool retro_load_game(const struct retro_game_info *info)
 {
     gb->reset();
     gb->loadRom(info->path);
-
-    if (info && info->data) { // ensure there is ROM data
-        return true; //gb->loadRom((const uint8_t*)info->data, info->size);
-    }
     return true;
 }
 
@@ -137,13 +132,12 @@ void retro_get_system_info(struct retro_system_info *info)
 void retro_reset(void) {
 }
 
-const uint16_t col = 0xFFFF;
 const uint16_t frame_width = 160;
 const uint16_t frame_height = 144;
 const uint32_t frame_size = frame_width*frame_height;
 const uint32_t frame_pitch = sizeof(uint16_t) * frame_width;
-uint16_t framebuffer[frame_size] = {col};
-uint8_t audiobuffer[1] = {0};
+uint16_t framebuffer[frame_size] = {0xFFFF};
+uint8_t audiobuffer[1] = {0}; //TODO: implement correct audio buffering
 
 /*
  * Tell libretro about the AV system; the fps, sound sample rate and the

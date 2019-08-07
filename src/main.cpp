@@ -55,6 +55,7 @@ int main(int argc, char** argv){
     clocks += test_cpu.processInterrupts();
     test_ppu.update(clocks);
     test_timer.update(clocks);
+    memory_manager.processDMA();
   }
 
   std::cout << std::endl;

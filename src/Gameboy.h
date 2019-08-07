@@ -18,7 +18,7 @@ public:
     cpu(mmu, interrupts, NULL) {};
   ~Gameboy(void){};
 
-  const char *getVersion(void) { return "0.0.1"; };
+  const char *getVersion(void) { return "0.0.2"; };
   const char *getName(void) { return "GB17"; };
 
   void loadRom(const char *filename){
@@ -38,6 +38,7 @@ public:
       uint32_t clocks = cpu.executeInstruction();
       clocks += cpu.processInterrupts();
       timer.update(clocks);
+      mmu.processDMA();
       if(ppu.update(clocks)){
         break;
       }
@@ -54,6 +55,4 @@ private:
   PPU ppu;
   MMU mmu;
   CPU cpu;
-  
-  
 };

@@ -20,6 +20,9 @@ public:
     boot = 0;
   };
   ~MMU(){};
+
+  void processDMA(void);
+  
   uint8_t read8bit(const uint16_t address);
   uint16_t read16bit(const uint16_t address);
 
@@ -40,6 +43,7 @@ private:
   uint8_t boot;
   uint8_t ie;
   uint8_t joyp;
+  uint8_t dmaRequired = 0;
 };
 
 class MemRef {

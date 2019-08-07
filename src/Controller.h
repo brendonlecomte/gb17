@@ -37,9 +37,10 @@ public:
   };
 
   uint8_t getRegister(void) {
-    if(select)
-      return buttons.to_ulong() >> 4;
-    return buttons.to_ulong() & 0x0F;
+    if(select) {
+      return (uint8_t)(0x20 | (buttons.to_ulong() & 0x0F));
+    }
+    return (uint8_t)(0x10 | ((buttons.to_ulong() >> 4) & 0x0F));
   };
 
 private:

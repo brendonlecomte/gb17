@@ -46,6 +46,7 @@ int main(int argc, char** argv){
     clocks += cpu->processInterrupts();
     ppu.update(clocks);
     timer.update(clocks);
+    memory_manager.processDMA();
 
     if(saved_pc == cpu->PC && !cpu->halted && cpu->op != OpCode::NOP){
         std::string ss;

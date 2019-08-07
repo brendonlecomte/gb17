@@ -1,5 +1,6 @@
 #include "PPU.h"
 #include <string.h>
+#include <iostream>
 #include <stdio.h>
 
 const uint16_t OAM_CLOCKS = (80 / 4);
@@ -8,10 +9,11 @@ const uint16_t HBLANK_CLOCKS =  (204 / 4);
 const uint16_t LINE_CLOCKS =  (OAM_CLOCKS + TRANSFER_CLOCKS + HBLANK_CLOCKS);
 const uint8_t SCREEN_LINE_END = 144;
 const uint8_t VBLANK_LINE_END = 250;
-
 const uint8_t bg_tile_map_width = 32;
 
-sprite_t* PPU::getTileSprite(int8_t tile_index){
+const uint16_t lut[4] = {0xFFFF, 0x6969, 0xa9a9, 0x00};
+
+tile_t* PPU::getTileData(int8_t tile_index){
   uint8_t index;
   if(!LCDC.fields.bg_tile_map_sel) {
     index = (uint8_t)tile_index;
@@ -28,37 +30,54 @@ int8_t PPU::getBGTileIndex(uint8_t x, uint8_t y) {
   return (background_map[0])[t_offset]; //get the tile index from the bg map
 }
 
-uint16_t* PPU::getLineBuffer(uint8_t y) {
-  return &bg_buffer[(bg_buffer_width*y)];
-}
-
-
 void PPU::drawBGLine(const uint8_t ly) {
-  for(uint8_t x = 0; x != bg_buffer_width; x++) { //0 ... 255
+  for(uint8_t x = 0; x != bg_buffer_width; x++) { //0 ... 160
     int8_t tile_index = getBGTileIndex(((x+SCX)%256), ((ly+SCY)%256));
-    sprite_t* tile_sprite = getTileSprite(tile_index);
-    drawTilePixel(tile_sprite, x, ly, ((x+SCX)%256), ((ly+SCY)%256)); //draw the sprite by line
+    tile_t* tile_sprite = getTileData(tile_index);
+    uint8_t pixel = getTilePixel(tile_sprite, ((x+SCX)%256), ((ly+SCY)%256)); //draw the sprite by line
+    drawPixelOnScreen(x, ly, lut, pixel);
   }
 }
 
-const uint16_t lut[4] = {0xFFFF, 0x6969, 0xa9a9, 0x00};
+void PPU::drawPixelOnScreen(const uint8_t screen_x, const uint8_t screen_y, const uint16_t* pal, const uint8_t index) {
+  uint16_t* buffer = &bg_buffer[(bg_buffer_width * screen_y)];
+  buffer[screen_x] = pal[index];
+}
 
-void PPU::drawTilePixel(sprite_t* sprite, const uint8_t screen_x, const uint8_t screen_y, const uint8_t tile_x, const uint8_t tile_y) {
+uint8_t PPU::getTilePixel(tile_t* tile, const uint8_t tile_x, const uint8_t tile_y) {
   //draw the sprite into the buffer starting at x and y
-  uint16_t* buffer = getLineBuffer(screen_y);
-  uint8_t y_in_tile = (tile_y%8)* 2; // >> 3 gives 0 .. 31 from 0 .. 255
-  uint8_t x_in_tile = (tile_x%8);
+  uint8_t y_in_tile = (tile_y % 8) * 2; // >> 3 gives 0 .. 31 from 0 .. 255
+  uint8_t x_in_tile = (tile_x % 8);
   uint8_t y_even = y_in_tile; //double it because we only use the even indexes
   uint8_t y_odd = y_even + 1;
 
   uint8_t bit_mask = 0x80 >> x_in_tile;
-  uint8_t bit_a = !!(sprite->data[y_even] & bit_mask);
-  uint8_t bit_b = !!(sprite->data[y_odd] & bit_mask);
+  uint8_t bit_a = !!(tile->data[y_even] & bit_mask);
+  uint8_t bit_b = !!(tile->data[y_odd] & bit_mask);
   uint8_t pixel = (bit_a << 1) | bit_b;
 
-  buffer[screen_x] = lut[pixel];
+  return pixel;
 }
 
+void PPU::drawWindowLine(const uint8_t ly) {
+}
+
+void PPU::drawSpriteLine(const uint8_t ly) {
+  for(auto sp = found_sprites.begin(); sp != found_sprites.end(); sp++) {
+    sprite_t* i = &sprites[*sp];
+    int8_t tile_index = i->info.index;
+    tile_t* tile_sprite = getTileData(tile_index);
+    uint8_t tile_y = ly-(i->info.y-16);
+    for(uint8_t tile_x = 0; tile_x < 8; tile_x++) {
+      uint8_t screen_x = tile_x + (i->info.x-8);
+      uint8_t index = getTilePixel(tile_sprite, tile_x, tile_y); //draw the sprite by line
+      if(index != 0)
+      {
+        drawPixelOnScreen(screen_x, ly, lut, index);
+      }
+    }
+  } 
+}
 
 bool PPU::update(uint32_t clocks) {
   clock_count += clocks;
@@ -66,7 +85,7 @@ bool PPU::update(uint32_t clocks) {
   switch((PPUMode)(STAT.fields.mode)) {
     case PPUMode::OAM:
       if(clock_count >= OAM_CLOCKS) {
-        oamSearch();
+        found_sprites = oamSearch((sprite_t*)oam, LY);
         STAT.fields.mode = (uint8_t)PPUMode::TRANSFER;
         clock_count = 0;
       }
@@ -104,17 +123,36 @@ bool PPU::update(uint32_t clocks) {
   return false;
 }
 
-void PPU::oamSearch() {
+std::vector<uint8_t> PPU::oamSearch(const sprite_t* oam, const uint8_t ly) {
+  // uint8_t count = 0;
   //find all the sprites for this line
+  //FE00-FE9F search space. 4byte values. 40 total
+  std::vector<uint8_t> active_sprites;
+  for(uint8_t i = 0; i < 10; i++) {
+   if(active_sprites.size() >= 10) break;
+   if(oam[i].info.x == 0 || oam[i].info.x == 168) continue; //X is outside the screen 
+   if(oam[i].info.y-16 <= ly && oam[i].info.y-8 > ly) {
+     active_sprites.push_back(i);
+   }
+  }
+  std::cout << std::endl;
+  return active_sprites; 
 }
 
-void PPU::pixelTransfer() {
+void PPU::pixelTransfer() { 
   //Draw background for line
   drawBGLine(LY);
 
-  //Draw sprites on the line
-
   //Draw the window on the line
+  if(LCDC.fields.win_display_enable) {
+    drawWindowLine(LY);
+  }
+
+  //Draw sprites on the line
+  if(LCDC.fields.sprite_enable) {
+    drawSpriteLine(LY);
+  }
+  found_sprites.clear();
 }
 
 void PPU::hblank() {
@@ -134,7 +172,6 @@ void PPU::vblank() {
 
 
 /* PUBLIC API */
-
 void PPU::writeVram(const uint16_t addr, const uint8_t data) {
 // if((PPUMode)STAT.fields.mode == PPUMode::TRANSFER) return; //handle vram protection
   vram[addr] = data;
@@ -146,10 +183,11 @@ uint8_t PPU::readVram(const uint16_t addr) {
 }
 
 void PPU::writeSprite(const uint16_t addr, const uint8_t data){
+  oam[addr] = data;
 }
 
 uint8_t PPU::readSprite(const uint16_t addr) {
-  return 0;
+  return oam[addr];
 }
 
 void PPU::writeRegister(const uint16_t addr, uint8_t data) {

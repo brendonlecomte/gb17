@@ -29,7 +29,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
-      return m_ppu.readSprite(address);
+      return m_ppu.readSprite((address - 0xFE00));
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
@@ -37,7 +37,7 @@ uint8_t MMU::read8bit(const uint16_t address) {
       break;
     case 0xFF00:
       // JOYP
-      return joyp;
+      return m_controller.getRegister();;
       break;
     case 0xFF01:
       // Serial Data
@@ -104,13 +104,18 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
-      m_ppu.writeSprite(address, data);
+      m_ppu.writeSprite((address - 0xFE00), data);
       break;
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
       break;
     case 0xFF00:
-      joyp = (data & 0x30) | joyp;
+      if((data & 0x10) == 0x10) {  //set direction keys
+        m_controller.setSelect(0);
+      }
+      else if((data & 0x20) == 0x20) {
+        m_controller.setSelect(1);
+      }
       break;
     case 0xFF01:
       // Serial Data
@@ -123,7 +128,10 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       m_timer.writeRegister(address, data);
       break;
 
-    case 0xFF40 ... 0xFF4B:
+    case 0xFF46: //DMA
+      dmaRequired = 1;
+    case 0xFF40 ... 0xFF45:
+    case 0xFF47 ... 0xFF4B:
       m_ppu.writeRegister(address, data);
       break;
 
@@ -136,6 +144,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
     case 0xFF0F: // IF
       m_flags.setInterrupts(data);
       break;
+
     case 0xFF80 ... 0xFFFE: {
       // High RAM (HRAM)
       uint8_t hram_address = ((uint8_t)address & (~0xFF80));
@@ -155,4 +164,16 @@ void MMU::write(const uint16_t address, const uint8_t data) {
 void MMU::write(const uint16_t address, const uint16_t data) {
   write(address + 1, (uint8_t)(data >> 8));
   write(address, (uint8_t)data);
+}
+
+void MMU::processDMA(void) {
+  if(dmaRequired) {
+    dmaRequired = 0;
+    uint16_t src;
+    uint16_t dst = 0xFE00;
+    for(src = 0x0000 + (m_ppu.dmaStart()<<8); (src&0x00A0) != 0x00A0; src++, dst++) {
+      uint8_t data = read8bit(src);
+      write(dst, data);
+    }
+  }
 }
