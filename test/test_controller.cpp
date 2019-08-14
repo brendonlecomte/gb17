@@ -40,33 +40,32 @@ protected:
 
 // Tests that the CPU does add instr correctly
 TEST_F(ControllerTest, Presses) {
-  EXPECT_EQ(0x0F, control.getRegister());
+  EXPECT_EQ(0x1F, control.getRegister());
   control.setButton(Buttons::A, true);
-  EXPECT_EQ(0x0F, control.getRegister());
+  EXPECT_EQ(0x1E, control.getRegister());
   control.setSelect(1);
-  EXPECT_EQ(0x0E, control.getRegister());
+  EXPECT_EQ(0x2F, control.getRegister());
   control.setButton(Buttons::SELECT, true);
-  EXPECT_EQ(0x0A, control.getRegister());
-  control.setSelect(0);
-  EXPECT_EQ(0x0F, control.getRegister());
+  EXPECT_EQ(0x2F, control.getRegister());
+  control.setSelect(1);
 
   control.setButton(Buttons::DOWN, true);
-  EXPECT_EQ(0x07, control.getRegister());
+  EXPECT_EQ(0x27, control.getRegister());
   control.setButton(Buttons::DOWN, false);
 
   control.setButton(Buttons::UP, true);
-  EXPECT_EQ(0x0B, control.getRegister());
+  EXPECT_EQ(0x2B, control.getRegister());
   control.setButton(Buttons::UP, false);
 
   control.setButton(Buttons::LEFT, true);
-  EXPECT_EQ(0x0D, control.getRegister());
+  EXPECT_EQ(0x2D, control.getRegister());
   control.setButton(Buttons::LEFT, false);
 
   control.setButton(Buttons::RIGHT, true);
-  EXPECT_EQ(0x0E, control.getRegister());
+  EXPECT_EQ(0x2E, control.getRegister());
 
   control.setButton(Buttons::LEFT, true);
-  EXPECT_EQ(0x0C, control.getRegister());
+  EXPECT_EQ(0x2C, control.getRegister());
 }
 
 TEST_F(ControllerTest, Interrupt) {

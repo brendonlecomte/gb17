@@ -36,6 +36,7 @@ int main(int argc, char** argv){
 
   signal (SIGINT, onExit); //dump core on exit for debugging
   signal (SIGABRT, onExit);
+  signal (SIGSEGV, onExit);
 
   game_cart.loadCart(argv[1]);
   game_cart.getCartHeader().print(std::cout);

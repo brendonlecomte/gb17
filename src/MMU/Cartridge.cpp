@@ -12,6 +12,7 @@ void Cartridge::createController(void) {
     case CartType::ROM_ONLY:
       memory_controller = new RomOnlyCart(rom);
       break;
+    case CartType::MBC3_RAM_BATTERY: //PKMN Red only.... TODO fix this
     case CartType::MBC1:
       memory_controller =
           new MBC1(rom, cart_header.getRomBanks(), ram, cart_header.getRamSize(), cart_header.getRamBanks());

@@ -13,13 +13,12 @@ const uint8_t bg_tile_map_width = 32;
 
 const uint16_t lut[4] = {0xFFFF, 0x6969, 0xa9a9, 0x00};
 
+
 tile_t* PPU::getTileData(int8_t tile_index){
+  //Bit 4 - BG & Window Tile Data Select   (0=8800-97FF, 
+  // 1=8000-8FFF) access unsigned 0 - 255?
   uint8_t index;
-  if(!LCDC.fields.bg_tile_map_sel) {
-    index = (uint8_t)tile_index;
-  } else {
-    index = (uint8_t)(tile_index + 128);
-  }
+  index = (uint8_t)(tile_index);
   return &(tile_data[0])[index]; //get the sprite using the index
 }
 
@@ -27,7 +26,7 @@ int8_t PPU::getBGTileIndex(uint8_t x, uint8_t y) {
   uint8_t y_tile = y >> 3;
   uint8_t x_tile = x >> 3; //figure out which tile column we are using
   uint16_t t_offset = (y_tile * bg_tile_map_width) + x_tile; //y=0 [0 ... 32], y=1 [1...64]
-  return (background_map[0])[t_offset]; //get the tile index from the bg map
+  return (background_map[LCDC.fields.bg_tile_map_sel])[t_offset]; //get the tile index from the bg map
 }
 
 void PPU::drawBGLine(const uint8_t ly) {
@@ -66,10 +65,12 @@ void PPU::drawSpriteLine(const uint8_t ly) {
   for(auto sp = found_sprites.begin(); sp != found_sprites.end(); sp++) {
     sprite_t* i = &sprites[*sp];
     int8_t tile_index = i->info.index;
-    tile_t* tile_sprite = getTileData(tile_index);
+    tile_t* tile_sprite = getTileData(tile_index); // TODO this one accesses 0x8000 -> using unsigned 
     uint8_t tile_y = ly-(i->info.y-16);
     for(uint8_t tile_x = 0; tile_x < 8; tile_x++) {
       uint8_t screen_x = tile_x + (i->info.x-8);
+      if(screen_x > 160) break; //bail if part of the sprite is off screen
+      //need something for tiles the are part on the screen
       uint8_t index = getTilePixel(tile_sprite, tile_x, tile_y); //draw the sprite by line
       if(index != 0)
       {
@@ -128,14 +129,15 @@ std::vector<uint8_t> PPU::oamSearch(const sprite_t* oam, const uint8_t ly) {
   //find all the sprites for this line
   //FE00-FE9F search space. 4byte values. 40 total
   std::vector<uint8_t> active_sprites;
-  for(uint8_t i = 0; i < 10; i++) {
+  for(uint8_t i = 0; i < 40; i++) {
    if(active_sprites.size() >= 10) break;
-   if(oam[i].info.x == 0 || oam[i].info.x == 168) continue; //X is outside the screen 
-   if(oam[i].info.y-16 <= ly && oam[i].info.y-8 > ly) {
+   if(oam[i].info.x == 0) continue; //X is outside the screen 
+   int16_t y_min = oam[i].info.y - 16;
+   int16_t y_max = oam[i].info.y - 8;
+   if(y_min <= ly && y_max > ly) {
      active_sprites.push_back(i);
    }
   }
-  std::cout << std::endl;
   return active_sprites; 
 }
 

@@ -15,6 +15,7 @@ protected:
 
   BankTest() {
     cart.loadCart("../../gb-test-roms/cpu_instrs/individual/01-special.gb");
+    // cart.loadCart("/Users/brendonlc/Documents/roms/Pokemon Red.gb");
   }
 
   ~BankTest() override {
@@ -60,4 +61,11 @@ TEST_F(BankTest, testCart) {
   uint8_t t = cart.read(0x4000);
   EXPECT_EQ(0xC3, t);
 }
+
+TEST_F(BankTest, testCartExtreme) {
+  uint8_t t;
+  t = cart.read(0x7FFF);
+  EXPECT_EQ(0x00, t);
+}
+
 }

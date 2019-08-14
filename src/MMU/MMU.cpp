@@ -27,25 +27,31 @@ uint8_t MMU::read8bit(const uint16_t address) {
       // Same as C000-DFFF (ECHO)    (typically not used)
       return wram[address - 0xE000];
       break;
+      
     case 0xFE00 ... 0xFE9F:
       // Sprite Attribute Table (OAM)
       return m_ppu.readSprite((address - 0xFE00));
       break;
+
     case 0xFEA0 ... 0xFEFF:
       // Not Usable
       assert(0);
       break;
+
     case 0xFF00:
       // JOYP
       return m_controller.getRegister();;
       break;
+
     case 0xFF01:
       // Serial Data
       return m_serialPort.read();
       break;
+
     case 0xFF02: // Serial Control ... .
       return m_serialPort.getControl();
       break;
+
     case 0xFF04:
     case 0xFF05:
     case 0xFF06:
@@ -88,7 +94,7 @@ void MMU::write(const uint16_t address, const uint8_t data) {
       break;
     case 0x8000 ... 0x9FFF:
       // 8KB Video RAM (VRAM) (switchable bank 0-1 in CGB Mode)
-      m_ppu.writeVram(address & (~0x8000), data);
+      m_ppu.writeVram((address & ~0x8000), data);
       break;
     case 0xA000 ... 0xBFFF:
       // 8KB External RAM     (in cartridge, switchable bank, if any)

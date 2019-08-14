@@ -19,10 +19,10 @@ set(shared_sources  "src/CPU/ALU.cpp"
                     "src/Timer/Timer.cpp"
                     "src/PPU/PPU.cpp")
 
-# set(sources "src/main.cpp"
-#             ${shared_sources})
+set(sources "src/main.cpp"
+            ${shared_sources})
 
-# add_executable(gb17 ${sources})
+add_executable(gb17 ${sources})
 
 # set(state_source "src/compare.cpp"
 #                  ${shared_sources})
