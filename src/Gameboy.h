@@ -18,7 +18,7 @@ public:
     cpu(mmu, interrupts, NULL) {};
   ~Gameboy(void){};
 
-  const char *getVersion(void) { return "0.0.2"; };
+  const char *getVersion(void) { return "0.0.3"; };
   const char *getName(void) { return "GB17"; };
 
   void loadRom(const char *filename){
