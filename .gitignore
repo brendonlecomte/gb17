@@ -36,3 +36,6 @@
 **/build/*
 roms/*
 .DS_Store
+*.code-workspace
+*.txt
+**/Debug/*

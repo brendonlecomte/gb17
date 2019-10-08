@@ -137,8 +137,9 @@ private:
   void hblank();
   void vblank();
 
-  int8_t getBGTileIndex(uint8_t x, uint8_t y);
-  tile_t* getTileData(int8_t tile_index);
+  uint8_t getBGTileIndex(uint8_t x, uint8_t y);
+  uint8_t getWinTileIndex(uint8_t x, uint8_t y);
+  tile_t* getTileData(uint8_t tile_index);
 
   void drawBGLine(const uint8_t ly);
   void drawWindowLine(const uint8_t ly);

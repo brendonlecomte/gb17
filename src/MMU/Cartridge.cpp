@@ -1,6 +1,7 @@
 #include "Cartridge.h"
 #include "Cartridge_Header.h"
 #include "MBC1.h"
+#include "MBC3_ram_battery.h"
 #include "ROMOnly.h"
 #include <assert.h>
 #include <iterator>
@@ -12,7 +13,10 @@ void Cartridge::createController(void) {
     case CartType::ROM_ONLY:
       memory_controller = new RomOnlyCart(rom);
       break;
-    case CartType::MBC3_RAM_BATTERY: //PKMN Red only.... TODO fix this
+    case CartType::MBC3_RAM_BATTERY:
+      memory_controller = 
+        new MBC3_ram_batt(rom, cart_header.getRomBanks(), ram, cart_header.getRamSize(), cart_header.getRamBanks());
+      break;
     case CartType::MBC1:
       memory_controller =
           new MBC1(rom, cart_header.getRomBanks(), ram, cart_header.getRamSize(), cart_header.getRamBanks());

@@ -18,6 +18,7 @@ PPU Known Issues:
 - Window not implemented
 - LY Coincidence interrupt not implemented
 - Dr Mario weird tile issues
+- Get BG / Win / Sprite Tile data by index is incorrectly done
 
 GB Known Issues:
 - Performance. Runs at normal speed but no double speed.
@@ -29,6 +30,7 @@ Audio Known Issues:
 
 The New plan...
  - SDL + imgui application for running the emulator. Should be basically the same as RetroArch.
+ - First step is to compile with SDL2 so I can play tetris on it. 
  - Long term still use RetroArch for deployment. But SDL gives me 
  debugging tools to figure out my issues.
  - Add Debugging windows via Imgui. Registers. Instruction Trace. etc.

@@ -14,24 +14,42 @@ const uint8_t bg_tile_map_width = 32;
 const uint16_t lut[4] = {0xFFFF, 0x6969, 0xa9a9, 0x00};
 
 
-tile_t* PPU::getTileData(int8_t tile_index){
+tile_t* PPU::getTileData(uint8_t tile_index){
   //Bit 4 - BG & Window Tile Data Select   (0=8800-97FF, 
   // 1=8000-8FFF) access unsigned 0 - 255?
-  uint8_t index;
-  index = (uint8_t)(tile_index);
-  return &(tile_data[0])[index]; //get the sprite using the index
+  // uint8_t index;
+  // index = tile_index;
+  uint32_t base_address = 0;
+  if(LCDC.fields.tile_map_sel == 0) {
+    uint8_t sign = !!(tile_index & 0x80);
+    if(sign) {
+      tile_index &= 0x7F;
+      base_address += 0x800;
+    }
+    else{
+      base_address = 0x1000; //even starts from 0x9000 (+0x1000 in vram)
+    }
+  }
+  return &((tile_t*)&vram[base_address])[tile_index]; //get the sprite using the index
 }
 
-int8_t PPU::getBGTileIndex(uint8_t x, uint8_t y) {
+uint8_t PPU::getBGTileIndex(uint8_t x, uint8_t y) {
   uint8_t y_tile = y >> 3;
   uint8_t x_tile = x >> 3; //figure out which tile column we are using
   uint16_t t_offset = (y_tile * bg_tile_map_width) + x_tile; //y=0 [0 ... 32], y=1 [1...64]
   return (background_map[LCDC.fields.bg_tile_map_sel])[t_offset]; //get the tile index from the bg map
 }
 
+uint8_t PPU::getWinTileIndex(uint8_t x, uint8_t y) {
+  uint8_t y_tile = y >> 3;
+  uint8_t x_tile = x >> 3; //figure out which tile column we are using
+  uint16_t t_offset = (y_tile * bg_tile_map_width) + x_tile; //y=0 [0 ... 32], y=1 [1...64]
+  return (background_map[LCDC.fields.win_tile_map_sel])[t_offset]; //get the tile index from the bg map
+}
+
 void PPU::drawBGLine(const uint8_t ly) {
   for(uint8_t x = 0; x != bg_buffer_width; x++) { //0 ... 160
-    int8_t tile_index = getBGTileIndex(((x+SCX)%256), ((ly+SCY)%256));
+    uint8_t tile_index = getBGTileIndex(((x+SCX)%256), ((ly+SCY)%256));
     tile_t* tile_sprite = getTileData(tile_index);
     uint8_t pixel = getTilePixel(tile_sprite, ((x+SCX)%256), ((ly+SCY)%256)); //draw the sprite by line
     drawPixelOnScreen(x, ly, lut, pixel);
@@ -59,13 +77,21 @@ uint8_t PPU::getTilePixel(tile_t* tile, const uint8_t tile_x, const uint8_t tile
 }
 
 void PPU::drawWindowLine(const uint8_t ly) {
+  if(LCDC.fields.win_display_enable && ly >= WY) {
+    for(uint8_t x = WX; x != bg_buffer_width; x++) { //0 ... 160
+      uint8_t tile_index = getWinTileIndex(x, ly);
+      tile_t* tile_sprite = getTileData(tile_index);
+      uint8_t pixel = getTilePixel(tile_sprite, x, ly); //draw the sprite by line
+      drawPixelOnScreen(x, ly, lut, pixel);
+    }
+  }
 }
 
 void PPU::drawSpriteLine(const uint8_t ly) {
   for(auto sp = found_sprites.begin(); sp != found_sprites.end(); sp++) {
     sprite_t* i = &sprites[*sp];
-    int8_t tile_index = i->info.index;
-    tile_t* tile_sprite = getTileData(tile_index); // TODO this one accesses 0x8000 -> using unsigned 
+    uint8_t tile_index = i->info.index;
+    tile_t* tile_sprite = &((tile_t*)&vram[0])[tile_index]; // TODO: this one accesses 0x8000 -> using unsigned 
     uint8_t tile_y = ly-(i->info.y-16);
     for(uint8_t tile_x = 0; tile_x < 8; tile_x++) {
       uint8_t screen_x = tile_x + (i->info.x-8);
@@ -125,7 +151,6 @@ bool PPU::update(uint32_t clocks) {
 }
 
 std::vector<uint8_t> PPU::oamSearch(const sprite_t* oam, const uint8_t ly) {
-  // uint8_t count = 0;
   //find all the sprites for this line
   //FE00-FE9F search space. 4byte values. 40 total
   std::vector<uint8_t> active_sprites;

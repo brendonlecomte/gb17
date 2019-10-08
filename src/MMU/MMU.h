@@ -17,7 +17,7 @@ public:
         wram(wram_mem, 0x1000, 2),
         joyp(0x1F)
   {
-    boot = 1;
+    boot = 0;
   };
   ~MMU(){};
 

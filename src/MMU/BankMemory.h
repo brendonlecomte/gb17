@@ -17,6 +17,8 @@ public:
 
   void setBank(uint16_t bank) { m_bank = bank; }
 
+  uint8_t getBank(void) { return m_bank; }
+
   uint8_t& operator[](uint16_t address) { 
     return banks[bankSelect(address)][convertAddress(address)]; 
   };
